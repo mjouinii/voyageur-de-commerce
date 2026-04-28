@@ -21,13 +21,30 @@ res/ (resources)
 
 src/ -> fichier.cpp 
 
-## 🧰 Makefile
+## Utilisation de git
+
+À faire avant de git pull pour vérifier si les différences entre son code et le dépot :
+`git status`
+
+Pour ajouter les modifications du dépot sans toucher à son propre code :
+`git fetch origin`
+
+## 🧰 Makefile pour Linux
 
 Compiler le projet : `make`
 
 Nettoyer les fichiers objets : `make clean`
 
 Faire un backup du projet : `make backup`
+
+## CMakeLists.txt pour Windows
+
+Génère un Makefile compatible Windows (MinGW) tout en continuant de fonctionner pour Linux.
+
+`mkdir build`
+`cd build`
+`cmake ..`
+`cmake --build .`
 
 ## 🛠 Stack Technique
 **C++**
