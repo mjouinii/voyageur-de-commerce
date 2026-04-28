@@ -1,27 +1,36 @@
-# Voyageur de Commerce
+# Voyageur de Commerce - TSP
 
 Description du projet ...
 
 ![Capture d'écran du projet](lien-vers-image.png)
 
 ## Architecture du projet :
-instances/ -> fichier.tsp (données à traiter)
+backups/ -> archive.tar.gz (sauvegarde du projet)
 
-src/ -> fichier.cpp 
+instances/ -> fichier.tsp (données à traiter)
 
 include/ -> fichier.h (définition de structures et de fonctions)
 
 build/ -> fichier.o (objet - binaire)
 
+log/ -> fichier.log (journalisation de l'état du programme)
+
 fichier.out (exécutable)
 
-## Makefile
-working progress ...
+res/ (resources)
 
-## Stack Technique
+src/ -> fichier.cpp 
+
+## 🧰 Makefile
+
+Compiler le projet : `make`
+
+Nettoyer les fichiers objets : `make clean`
+
+Faire un backup du projet : `make backup`
+
+## 🛠 Stack Technique
 **C++**
 
 ## 🤝 Contributeur 
-Jouini Moslem
-
-Alexis Kerboul
+Jouini Moslem & Alexis Kerboul
