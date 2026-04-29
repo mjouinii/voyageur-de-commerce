@@ -1,0 +1,2 @@
+bayg29.tsp -> distances explicites en UPPER_ROW (matrice triangulaire supérieure)
+att48.tsp -> coordonnées + type ATT (distance-euclidienne à calculer)
