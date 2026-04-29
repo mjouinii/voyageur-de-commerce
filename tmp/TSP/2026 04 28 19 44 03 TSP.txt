@@ -1,0 +1,725 @@
+2026-04-2819:44:03~/TSP/claude-versionubuser ls -l
+total 136
+drwxrwxr-x 2 ubuser ubuser  4096 avril 28 15:29 backups
+-rwxrwxr-x 1 ubuser ubuser  1075 avril 28 15:22 backup.sh
+drwxrwxr-x 2 ubuser ubuser  4096 avril 28 19:41 build
+-rw-rw-r-- 1 ubuser ubuser  1035 avril 28 15:56 CMakeLists.txt
+drwxrwxr-x 2 ubuser ubuser  4096 avril 28 19:33 include
+drwxrwxr-x 2 ubuser ubuser  4096 avril 28 19:05 instances
+drwxrwxr-x 3 ubuser ubuser  4096 avril 28 15:42 log
+-rw-rw-r-- 1 ubuser ubuser  1380 avril 28 15:24 Makefile
+-rwxrwxr-x 1 ubuser ubuser 93112 avril 28 19:41 monExecutable.out
+-rw-rw-r-- 1 ubuser ubuser  1109 avril 28 16:09 README.md
+drwxrwxr-x 2 ubuser ubuser  4096 avril 28 15:35 res
+drwxrwxr-x 2 ubuser ubuser  4096 avril 28 19:36 src
+2026-04-2819:44:07~/TSP/claude-versionubusercd include
+2026-04-2819:45:02~/TSP/claude-version/includeubuser cat CoordDistanceCalc.h 
+#pragma once
+#include "TSPInstance.h"
+#include <istream>
+
+// ---------------------------------------------------------------------------
+// CoordDistanceCalc
+// ---------------------------------------------------------------------------
+// Responsabilité : lire la section NODE_COORD_SECTION et calculer toutes
+// les distances selon le type de métrique indiqué (ATT, EUC_2D…).
+//
+// Métriques supportées :
+//
+//   EUC_2D  – distance euclidienne arrondie à l'entier le plus proche.
+//             d(i,j) = round( sqrt((xi-xj)² + (yi-yj)²) )
+//
+//   ATT     – "pseudo-euclidienne" utilisée dans att48.
+//             Formule officielle TSPLIB :
+//               rij = sqrt( ((xi-xj)² + (yi-yj)²) / 10 )
+//               tij = nint(rij)          // arrondi normal
+//               if (tij < rij) dij = tij + 1
+//               else           dij = tij
+//             Soit : dij = ceil(rij) si rij n'est pas entier, round sinon.
+//             En pratique : dij = (int)ceil(sqrt(((xi-xj)²+(yi-yj)²)/10.0))
+//             mais il faut éviter de sur-arrondir quand rij est exactement
+//             entier → on utilise la formule avec nint explicite.
+//
+// Pourquoi séparer EUC_2D et ATT ?
+//   La seule différence est la formule de calcul. En passant le type au
+//   constructeur, on évite un if/switch dans la boucle interne (n² appels).
+// ---------------------------------------------------------------------------
+
+enum class DistanceType { EUC_2D, ATT };
+
+class CoordDistanceCalc {
+public:
+    explicit CoordDistanceCalc(DistanceType type) : type_(type) {}
+
+    // Lit NODE_COORD_SECTION (flux positionné après cette ligne),
+    // stocke les coordonnées et calcule la matrice dist[][].
+    void read(std::istream& in, TSPInstance& instance);
+
+private:
+    DistanceType type_;
+
+    // Calcule la distance entière entre deux nœuds selon la métrique choisie
+    int compute(const NodeCoord& a, const NodeCoord& b) const;
+};
+2026-04-2819:45:09~/TSP/claude-version/includeubuser cat ExplicitMatrixReader.h 
+#pragma once
+#include "TSPInstance.h"
+#include <istream>
+
+// ---------------------------------------------------------------------------
+// ExplicitMatrixReader
+// ---------------------------------------------------------------------------
+// Responsabilité unique : lire la section EDGE_WEIGHT_SECTION d'un fichier
+// dont le format est UPPER_ROW, et remplir la matrice dist[][] de l'instance.
+//
+// Pourquoi une classe séparée ?
+//   Le format TSPLIB supporte plusieurs formats de matrice (FULL_MATRIX,
+//   LOWER_ROW, UPPER_COL, etc.). En isolant chaque format dans sa propre
+//   classe, on peut ajouter un nouveau format sans toucher au parseur
+//   principal (principe ouvert/fermé).
+//
+// Format UPPER_ROW rappel :
+//   La matrice est symétrique. On ne stocke que le triangle supérieur strict
+//   (sans la diagonale). La ligne k contient les distances du nœud k vers
+//   tous les nœuds d'indice > k.
+//
+//   Pour n=4 :
+//     d(0,1) d(0,2) d(0,3)
+//     d(1,2) d(1,3)
+//     d(2,3)
+//
+//   Soit (n*(n-1))/2 valeurs au total.
+// ---------------------------------------------------------------------------
+
+class ExplicitMatrixReader {
+public:
+    // Lit depuis le flux `in` (positionné juste après la ligne
+    // "EDGE_WEIGHT_SECTION") et remplit instance.dist.
+    // Lance std::runtime_error si le flux est insuffisant.
+    static void read(std::istream& in, TSPInstance& instance);
+};
+2026-04-2819:45:17~/TSP/claude-version/includeubuser cat TSPInstance.h 
+#pragma once
+#include <vector>
+#include <string>
+
+// ---------------------------------------------------------------------------
+// TSPInstance
+// ---------------------------------------------------------------------------
+// Structure centrale qui représente une instance TSP entièrement chargée.
+//
+// Choix de conception :
+//   - On stocke la matrice de distances sous forme d'un vector<vector<int>>.
+//     Un tableau 2D plat (vector<int> de taille n*n) serait légèrement plus
+//     rapide en cache, mais vector<vector<int>> est plus lisible et largement
+//     suffisant pour n ≤ quelques milliers.
+//   - Les distances sont des int (entiers) : le format TSPLIB garantit que
+//     les distances finales sont entières (ou arrondies). Stocker des double
+//     n'apporterait rien et consommerait deux fois plus de mémoire.
+//   - Les coordonnées (optionnelles) sont en double car elles servent
+//     uniquement à l'affichage ou à des heuristiques géométriques.
+// ---------------------------------------------------------------------------
+
+struct NodeCoord {
+    double x, y;
+};
+
+class TSPInstance {
+public:
+    std::string name;                       // champ NAME du fichier
+    int         n = 0;                      // nombre de nœuds (DIMENSION)
+    std::vector<std::vector<int>> dist;     // dist[i][j] = distance i→j (0-indexé)
+    std::vector<NodeCoord>        coords;   // coordonnées (vides si EXPLICIT)
+
+    // Accès sûr à la distance entre deux nœuds (indices 0-based)
+    int distance(int i, int j) const { return dist[i][j]; }
+
+    // Retourne true si l'instance est complètement chargée
+    bool isValid() const { return n > 0 && (int)dist.size() == n; }
+};
+2026-04-2819:46:20~/TSP/claude-version/includeubuser cat TSPParser.h  
+#pragma once
+#include "TSPInstance.h"
+#include <string>
+
+// ---------------------------------------------------------------------------
+// TSPParser  –  point d'entrée unique pour charger un fichier .tsp
+// ---------------------------------------------------------------------------
+// Rôle : lire l'en-tête TSPLIB, identifier le type de fichier, et déléguer
+// la lecture des données à ExplicitMatrixReader ou CoordDistanceCalc.
+//
+// Utilisation :
+//   TSPInstance inst = TSPParser::load("bayg29.tsp");
+//   TSPInstance inst = TSPParser::load("att48.tsp");
+//
+// Exceptions :
+//   std::runtime_error si le fichier est introuvable, mal formé,
+//   ou si le type n'est pas supporté.
+//
+// Pourquoi une méthode statique plutôt qu'un objet ?
+//   Le parseur n'a pas d'état propre à conserver entre deux appels.
+//   Une méthode statique évite d'instancier un objet inutilement et rend
+//   l'interface d'appel plus claire.
+// ---------------------------------------------------------------------------
+
+class TSPParser {
+public:
+    static TSPInstance load(const std::string& filepath);
+
+private:
+    // Supprime les espaces en début et fin d'une chaîne (trim)
+    static std::string trim(const std::string& s);
+
+    // Extrait la valeur après le ':' d'une ligne "CLE : VALEUR"
+    static std::string extractValue(const std::string& line);
+};
+
+2026-04-2819:47:19~/TSP/claude-version/srcubuser cat CoordDistanceCalc.cpp 
+#include "../include/CoordDistanceCalc.h"
+#include <cmath>
+#include <stdexcept>
+
+// ---------------------------------------------------------------------------
+// Lecture des coordonnées
+// ---------------------------------------------------------------------------
+// Le format NODE_COORD_SECTION est :
+//   <numéro_nœud>  <x>  <y>
+// Les numéros sont 1-based dans le fichier ; on les convertit en 0-based
+// lors du stockage dans le vecteur coords (indice = numéro - 1).
+//
+// On lit exactement n lignes (une par nœud).
+// ---------------------------------------------------------------------------
+
+void CoordDistanceCalc::read(std::istream& in, TSPInstance& instance) {
+    const int n = instance.n;
+    instance.coords.resize(n);
+
+    // --- Lecture des coordonnées ---
+    for (int k = 0; k < n; ++k) {
+        int nodeId;
+        double x, y;
+        if (!(in >> nodeId >> x >> y)) {
+            throw std::runtime_error(
+                "CoordDistanceCalc : coordonnées manquantes au nœud " + std::to_string(k + 1)
+            );
+        }
+        // Conversion 1-based → 0-based
+        int idx = nodeId - 1;
+        if (idx < 0 || idx >= n) {
+            throw std::runtime_error(
+                "CoordDistanceCalc : numéro de nœud invalide " + std::to_string(nodeId)
+            );
+        }
+        instance.coords[idx] = {x, y};
+    }
+
+    // --- Construction de la matrice de distances ---
+    // On calcule les n*(n-1)/2 paires et on remplit les deux côtés
+    // (symétrie) en même temps pour éviter de recalculer.
+    // La diagonale reste à 0.
+    instance.dist.assign(n, std::vector<int>(n, 0));
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            int d = compute(instance.coords[i], instance.coords[j]);
+            instance.dist[i][j] = d;
+            instance.dist[j][i] = d;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Formules de distance
+// ---------------------------------------------------------------------------
+
+int CoordDistanceCalc::compute(const NodeCoord& a, const NodeCoord& b) const {
+    double dx = a.x - b.x;
+    double dy = a.y - b.y;
+
+    if (type_ == DistanceType::EUC_2D) {
+        // Arrondi à l'entier le plus proche (nint = nearest int)
+        // std::round() fait exactement ça.
+        return static_cast<int>(std::round(std::sqrt(dx*dx + dy*dy)));
+    }
+    else { // ATT
+        // Formule officielle TSPLIB section 2.3 :
+        //   rij  = sqrt( (dx² + dy²) / 10 )
+        //   tij  = nint(rij)
+        //   dij  = tij < rij ? tij + 1 : tij
+        //
+        // Ce n'est PAS exactement ceil() car si rij = 3.0 exactement,
+        // ceil(3.0) = 3 ET la formule donne aussi 3 → cohérent.
+        // Mais ceil() sur un double avec erreur flottante pourrait donner
+        // 4 alors que la valeur mathématique est 3. La formule avec nint
+        // est plus stable numériquement.
+        double rij = std::sqrt((dx*dx + dy*dy) / 10.0);
+        int    tij = static_cast<int>(std::round(rij));
+        return (tij < rij) ? tij + 1 : tij;
+    }
+}
+
+2026-04-2819:47:29~/TSP/claude-version/srcubuser cat ExplicitMatrixReader.cpp 
+#include "../include/ExplicitMatrixReader.h"
+#include <stdexcept>
+
+// ---------------------------------------------------------------------------
+// Algorithme de reconstruction de la matrice complète depuis UPPER_ROW
+// ---------------------------------------------------------------------------
+// Étape 1 – Allouer la matrice n×n initialisée à 0.
+//           La diagonale restera à 0 (distance d'un nœud à lui-même).
+//
+// Étape 2 – Lire les (n*(n-1))/2 valeurs entières dans l'ordre.
+//           Pour chaque paire (i, j) avec j > i :
+//             dist[i][j] = valeur lue
+//             dist[j][i] = même valeur  (symétrie)
+//
+// Étape 3 – Vérifier qu'on a bien lu toutes les valeurs attendues.
+//
+// Pourquoi ne pas lire ligne par ligne ?
+//   Le fichier bayg29.tsp contient des espaces en tête de ligne et des
+//   retours à la ligne arbitraires. En utilisant `in >> value` (extraction
+//   par opérateur >>), on ignore automatiquement tout whitespace (espaces,
+//   tabulations, sauts de ligne). C'est la méthode la plus robuste.
+// ---------------------------------------------------------------------------
+
+void ExplicitMatrixReader::read(std::istream& in, TSPInstance& instance) {
+    const int n = instance.n;
+
+    // --- Étape 1 : allocation ---
+    // On initialise toute la matrice à 0.
+    // resize(n, vector<int>(n, 0)) crée n lignes de n zéros.
+    instance.dist.assign(n, std::vector<int>(n, 0));
+
+    // --- Étape 2 : lecture et reconstruction symétrique ---
+    // i parcourt les lignes du triangle supérieur (nœud source)
+    // j parcourt les colonnes à droite de la diagonale (nœud destination)
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            int value;
+            if (!(in >> value)) {
+                throw std::runtime_error(
+                    "ExplicitMatrixReader : données insuffisantes à la position ("
+                    + std::to_string(i) + "," + std::to_string(j) + ")"
+                );
+            }
+            instance.dist[i][j] = value;
+            instance.dist[j][i] = value;   // symétrie
+        }
+    }
+
+    // --- Étape 3 : vérification optionnelle ---
+    // On s'assure que la diagonale est bien à 0 (distance i→i = 0).
+    // Ce n'est pas strictement nécessaire car assign() l'a déjà mis à 0,
+    // mais c'est une bonne pratique défensive.
+    for (int i = 0; i < n; ++i) {
+        instance.dist[i][i] = 0;
+    }
+}
+
+2026-04-2819:49:07~/TSP/claude-version/srcubuser cat TSPParser.cpp 
+#include "../include/TSPParser.h"
+#include "../include/ExplicitMatrixReader.h"
+#include "../include/CoordDistanceCalc.h"
+
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <algorithm>
+#include <cctype>
+
+// ---------------------------------------------------------------------------
+// TSPParser::load  –  algorithme principal
+// ---------------------------------------------------------------------------
+//
+// Le format TSPLIB est une succession de lignes "CLE : VALEUR" (en-tête),
+// suivie de sections de données introduites par un mot-clé seul sur sa ligne.
+//
+// Stratégie de lecture en deux passes :
+//
+//   Passe 1 – En-tête
+//     On lit ligne par ligne jusqu'à rencontrer un mot-clé de section
+//     (EDGE_WEIGHT_SECTION, NODE_COORD_SECTION, DISPLAY_DATA_SECTION, EOF).
+//     On collecte : NAME, DIMENSION, EDGE_WEIGHT_TYPE, EDGE_WEIGHT_FORMAT.
+//
+//   Passe 2 – Données
+//     Dès qu'on tombe sur la section attendue, on délègue au lecteur adapté
+//     en lui passant le flux positionné juste après cette ligne.
+//
+// Pourquoi ne pas utiliser getline + sscanf ?
+//   L'opérateur >> de std::istream gère proprement les whitespace multiples,
+//   les espaces en fin de ligne, etc. Pour les valeurs numériques on l'utilise
+//   directement depuis les sous-lecteurs. Pour l'en-tête (chaînes avec
+//   espaces) on utilise getline + extraction manuelle après le ':'.
+// ---------------------------------------------------------------------------
+
+TSPInstance TSPParser::load(const std::string& filepath) {
+    std::ifstream file(filepath);
+    if (!file.is_open()) {
+        throw std::runtime_error("TSPParser : impossible d'ouvrir '" + filepath + "'");
+    }
+
+    TSPInstance instance;
+
+    // --- Variables de l'en-tête ---
+    std::string edgeWeightType;    // ex: "EXPLICIT", "ATT", "EUC_2D"
+    std::string edgeWeightFormat;  // ex: "UPPER_ROW" (présent si EXPLICIT)
+
+    // -----------------------------------------------------------------------
+    // Passe 1 : lecture de l'en-tête
+    // -----------------------------------------------------------------------
+    // On lit ligne par ligne.
+    // Dès qu'on détecte un mot-clé de section de données, on sort de la
+    // boucle en laissant le flux positionné APRÈS cette ligne (la lecture
+    // de la ligne consomme le saut de ligne final via getline).
+    // -----------------------------------------------------------------------
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::string trimmed = trim(line);
+        if (trimmed.empty()) continue;
+
+        // --- Détection des sections de données ---
+        // On compare avec les mots-clés exacts du standard TSPLIB.
+        // Note : certains fichiers écrivent "NODE_COORD_SECTION" sans espace
+        // après, d'autres mettent un ':'. On compare uniquement le préfixe.
+
+        if (trimmed.find("EDGE_WEIGHT_SECTION") == 0) {
+            // On sort de la boucle : le flux pointe sur la ligne suivante,
+            // c'est-à-dire le début des données numériques.
+            break;
+        }
+        if (trimmed.find("NODE_COORD_SECTION") == 0) {
+            break;
+        }
+        if (trimmed.find("DISPLAY_DATA_SECTION") == 0) {
+            // bayg29 a cette section APRÈS EDGE_WEIGHT_SECTION.
+            // Si on la rencontre en premier (jamais ici mais par robustesse),
+            // on ignore : pas de distances ici, juste de l'affichage.
+            break;
+        }
+        if (trimmed == "EOF") {
+            break;
+        }
+
+        // --- Parsing des champs de l'en-tête ---
+        // Chaque ligne est de la forme "CLE : VALEUR" ou "CLE: VALEUR"
+        // (l'espace autour du ':' est optionnel selon le fichier).
+        // On cherche la position du ':' et on extrait ce qui suit.
+
+        size_t colon = trimmed.find(':');
+        if (colon == std::string::npos) continue;  // ligne sans ':' → ignorée
+
+        std::string key   = trim(trimmed.substr(0, colon));
+        std::string value = trim(trimmed.substr(colon + 1));
+
+        // Normalisation en majuscules pour la comparaison
+        std::transform(key.begin(), key.end(), key.begin(), ::toupper);
+
+        if (key == "NAME") {
+            instance.name = value;
+        }
+        else if (key == "DIMENSION") {
+            instance.n = std::stoi(value);
+        }
+        else if (key == "EDGE_WEIGHT_TYPE") {
+            std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+            edgeWeightType = value;
+        }
+        else if (key == "EDGE_WEIGHT_FORMAT") {
+            std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+            edgeWeightFormat = value;
+        }
+        // Les autres champs (TYPE, COMMENT, DISPLAY_DATA_TYPE…) sont ignorés.
+    }
+
+    // -----------------------------------------------------------------------
+    // Validation minimale avant de lire les données
+    // -----------------------------------------------------------------------
+    if (instance.n <= 0) {
+        throw std::runtime_error("TSPParser : DIMENSION manquante ou invalide dans '" + filepath + "'");
+    }
+    if (edgeWeightType.empty()) {
+        throw std::runtime_error("TSPParser : EDGE_WEIGHT_TYPE manquant dans '" + filepath + "'");
+    }
+
+    // -----------------------------------------------------------------------
+    // Passe 2 : lecture des données – délégation au bon lecteur
+    // -----------------------------------------------------------------------
+    // Le flux est maintenant positionné sur la première ligne de données
+    // (juste après le mot-clé de section qui a stoppé la boucle ci-dessus).
+
+    if (edgeWeightType == "EXPLICIT") {
+        // Seul le format UPPER_ROW est implémenté ici.
+        // On pourrait étendre avec LOWER_ROW, FULL_MATRIX, etc.
+        if (edgeWeightFormat != "UPPER_ROW") {
+            throw std::runtime_error(
+                "TSPParser : format EDGE_WEIGHT_FORMAT non supporté : '" + edgeWeightFormat + "'"
+            );
+        }
+        ExplicitMatrixReader::read(file, instance);
+    }
+    else if (edgeWeightType == "ATT") {
+        CoordDistanceCalc calc(DistanceType::ATT);
+        calc.read(file, instance);
+    }
+    else if (edgeWeightType == "EUC_2D") {
+        CoordDistanceCalc calc(DistanceType::EUC_2D);
+        calc.read(file, instance);
+    }
+    else {
+        throw std::runtime_error(
+            "TSPParser : EDGE_WEIGHT_TYPE non supporté : '" + edgeWeightType + "'"
+        );
+    }
+
+    return instance;
+}
+
+// ---------------------------------------------------------------------------
+// Utilitaires
+// ---------------------------------------------------------------------------
+
+std::string TSPParser::trim(const std::string& s) {
+    // Trouve le premier caractère non-whitespace
+    size_t start = s.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos) return "";
+    // Trouve le dernier caractère non-whitespace
+    size_t end = s.find_last_not_of(" \t\r\n");
+    return s.substr(start, end - start + 1);
+}
+
+std::string TSPParser::extractValue(const std::string& line) {
+    size_t colon = line.find(':');
+    if (colon == std::string::npos) return "";
+    return trim(line.substr(colon + 1));
+}
+
+2026-04-2819:50:02~/TSP/claude-version/srcubuser cat main.cpp     
+#include "../include/TSPParser.h"
+#include <iostream>
+#include <iomanip>
+
+// ---------------------------------------------------------------------------
+// Programme de test : charge les deux fichiers et affiche un extrait de la
+// matrice de distances pour vérifier la cohérence.
+//
+// Valeurs attendues (sources officielles TSPLIB) :
+//   bayg29 : dist[0][1] = 97   (première valeur de UPPER_ROW)
+//            dist[1][0] = 97   (symétrie)
+//            dist[0][0] = 0    (diagonale)
+//
+//   att48  : dist[0][1] = ?    (calculé depuis les coordonnées)
+//     Node 1 : (6734, 1453)
+//     Node 2 : (2233, 10)
+//     dx=4501, dy=1443 → sqrt((4501²+1443²)/10) = sqrt(2243.21) ≈ 47.36
+//     nint(47.36)=47, 47 < 47.36 → d = 48
+//     Donc dist[0][1] = 48  (valeur de référence TSPLIB connue : 48 ✓)
+// ---------------------------------------------------------------------------
+
+void printMatrixCorner(const TSPInstance& inst, int size = 5) {
+    std::cout << "  Coin " << size << "x" << size << " de la matrice :\n";
+    std::cout << "     ";
+    for (int j = 0; j < size; ++j)
+        std::cout << std::setw(6) << j;
+    std::cout << "\n";
+    for (int i = 0; i < size; ++i) {
+        std::cout << "  " << std::setw(2) << i << " :";
+        for (int j = 0; j < size; ++j)
+            std::cout << std::setw(6) << inst.dist[i][j];
+        std::cout << "\n";
+    }
+}
+
+int main() {
+    // -----------------------------------------------------------------------
+    // Test 1 : bayg29  (EXPLICIT / UPPER_ROW)
+    // -----------------------------------------------------------------------
+    std::cout << "=== bayg29.tsp ===\n";
+    try {
+        TSPInstance b = TSPParser::load("bayg29.tsp");
+        std::cout << "  Nom       : " << b.name << "\n";
+        std::cout << "  Dimension : " << b.n << " nœuds\n";
+        std::cout << "  Valide    : " << (b.isValid() ? "oui" : "non") << "\n";
+        std::cout << "  dist[0][1] = " << b.dist[0][1]
+                  << "  (attendu : 97)\n";
+        std::cout << "  dist[1][0] = " << b.dist[1][0]
+                  << "  (symétrie)\n";
+        std::cout << "  dist[0][0] = " << b.dist[0][0]
+                  << "  (diagonale)\n";
+        printMatrixCorner(b);
+    } catch (const std::exception& e) {
+        std::cerr << "  ERREUR : " << e.what() << "\n";
+    }
+
+    std::cout << "\n";
+
+    // -----------------------------------------------------------------------
+    // Test 2 : att48  (ATT / NODE_COORD_SECTION)
+    // -----------------------------------------------------------------------
+    std::cout << "=== att48.tsp ===\n";
+    try {
+        TSPInstance a = TSPParser::load("att48.tsp");
+        std::cout << "  Nom       : " << a.name << "\n";
+        std::cout << "  Dimension : " << a.n << " nœuds\n";
+        std::cout << "  Valide    : " << (a.isValid() ? "oui" : "non") << "\n";
+        std::cout << "  Coordonnées node 0 : ("
+                  << a.coords[0].x << ", " << a.coords[0].y << ")\n";
+        std::cout << "  Coordonnées node 1 : ("
+                  << a.coords[1].x << ", " << a.coords[1].y << ")\n";
+        std::cout << "  dist[0][1] = " << a.dist[0][1]
+                  << "  (attendu : 48)\n";
+        std::cout << "  dist[1][0] = " << a.dist[1][0]
+                  << "  (symétrie)\n";
+        printMatrixCorner(a);
+    } catch (const std::exception& e) {
+        std::cerr << "  ERREUR : " << e.what() << "\n";
+    }
+
+    return 0;
+}
+
+2026-04-2819:51:34~/TSP/claude-versionubuser make      
+g++  -Wall -Iinclude -c src/CoordDistanceCalc.cpp -o build/CoordDistanceCalc.o
+g++  -Wall -Iinclude -c src/ExplicitMatrixReader.cpp -o build/ExplicitMatrixReader.o
+g++  -Wall -Iinclude -c src/main.cpp -o build/main.o
+g++  -Wall -Iinclude -c src/TSPParser.cpp -o build/TSPParser.o
+g++   build/CoordDistanceCalc.o  build/ExplicitMatrixReader.o  build/main.o  build/TSPParser.o -o monExecutable.out
+
+
+2026-04-2819:52:13~/TSP/claude-versionubuser cat instances/bayg29.tsp 
+NAME: bayg29
+TYPE: TSP
+COMMENT: 29 Cities in Bavaria, geographical distances (Groetschel,Juenger,Reinelt)
+DIMENSION: 29
+EDGE_WEIGHT_TYPE: EXPLICIT
+EDGE_WEIGHT_FORMAT: UPPER_ROW 
+DISPLAY_DATA_TYPE: TWOD_DISPLAY
+EDGE_WEIGHT_SECTION
+ 97 205 139  86  60 220  65 111 115 227  95  82 225 168 103 266 205 149 120  58 257 152  52 180 136  82  34 145
+129 103  71 105 258 154 112  65 204 150  87 176 137 142 204 148 148  49  41 211 226 116 197  89 153 124  74
+219 125 175 386 269 134 184 313 201 215 267 248 271 274 236 272 160 151 300 350 239 322  78 276 220  60
+167 182 180 162 208  39 102 227  60  86  34  96 129  69  58  60 120 119 192 114 110 192 136 173 173
+ 51 296 150  42 131 268  88 131 245 201 175 275 218 202 119  50 281 238 131 244  51 166  95  69
+279 114  56 150 278  46 133 266 214 162 302 242 203 146  67 300 205 111 238  98 139  52 120
+178 328 206 147 308 172 203 165 121 251 216 122 231 249 209 111 169  72 338 144 237 331
+169 151 227 133 104 242 182  84 290 230 146 165 121 270  91  48 158 200  39  64 210
+172 309  68 169 286 242 208 315 259 240 160  90 322 260 160 281  57 192 107  90
+140 195  51 117  72 104 153  93  88  25  85 152 200 104 139 154 134 149 135
+320 146  64  68 143 106  88  81 159 219  63 216 187  88 293 191 258 272
+174 311 258 196 347 288 243 192 113 345 222 144 274 124 165  71 153
+144  86  57 189 128  71  71  82 176 150  56 114 168  83 115 160
+ 61 165  51  32 105 127 201  36 254 196 136 260 212 258 234
+106 110  56  49  91 153  91 197 136  94 225 151 201 205
+215 159  64 126 128 190  98  53  78 218  48 127 214
+ 61 155 157 235  47 305 243 186 282 261 300 252
+105 100 176  66 253 183 146 231 203 239 204
+113 152 127 150 106  52 235 112 179 221
+ 79 163 220 119 164 135 152 153 114
+236 201  90 195  90 127  84  91
+273 226 148 296 238 291 269
+112 130 286  74 155 291
+130 178  38  75 180
+281 120 205 270
+213 145  36
+ 94 217
+162
+DISPLAY_DATA_SECTION
+   1    1150.0  1760.0
+   2     630.0  1660.0
+   3      40.0  2090.0
+   4     750.0  1100.0
+   5     750.0  2030.0
+   6    1030.0  2070.0
+   7    1650.0   650.0
+   8    1490.0  1630.0
+   9     790.0  2260.0
+  10     710.0  1310.0
+  11     840.0   550.0
+  12    1170.0  2300.0
+  13     970.0  1340.0
+  14     510.0   700.0
+  15     750.0   900.0
+  16    1280.0  1200.0
+  17     230.0   590.0
+  18     460.0   860.0
+  19    1040.0   950.0
+  20     590.0  1390.0
+  21     830.0  1770.0
+  22     490.0   500.0
+  23    1840.0  1240.0
+  24    1260.0  1500.0
+  25    1280.0   790.0
+  26     490.0  2130.0
+  27    1460.0  1420.0
+  28    1260.0  1910.0
+  29     360.0  1980.0
+EOF
+
+
+
+2026-04-2819:52:30~/TSP/claude-versionubuser cat instances/att48.tsp 
+NAME : att48
+COMMENT : 48 capitals of the US (Padberg/Rinaldi)
+TYPE : TSP
+DIMENSION : 48
+EDGE_WEIGHT_TYPE : ATT
+NODE_COORD_SECTION
+1 6734 1453
+2 2233 10
+3 5530 1424
+4 401 841
+5 3082 1644
+6 7608 4458
+7 7573 3716
+8 7265 1268
+9 6898 1885
+10 1112 2049
+11 5468 2606
+12 5989 2873
+13 4706 2674
+14 4612 2035
+15 6347 2683
+16 6107 669
+17 7611 5184
+18 7462 3590
+19 7732 4723
+20 5900 3561
+21 4483 3369
+22 6101 1110
+23 5199 2182
+24 1633 2809
+25 4307 2322
+26 675 1006
+27 7555 4819
+28 7541 3981
+29 3177 756
+30 7352 4506
+31 7545 2801
+32 3245 3305
+33 6426 3173
+34 4608 1198
+35 23 2216
+36 7248 3779
+37 7762 4595
+38 7392 2244
+39 3484 2829
+40 6271 2135
+41 4985 140
+42 1916 1569
+43 7280 4899
+44 7509 3239
+45 10 2676
+46 6807 2993
+47 5185 3258
+48 3023 1942
+EOF
+
+
+2026-04-2819:53:06~/TSP/claude-versionubuser ./monExecutable.out 
+=== bayg29.tsp ===
+  ERREUR : TSPParser : impossible d'ouvrir 'bayg29.tsp'
+
+=== att48.tsp ===
+  ERREUR : TSPParser : impossible d'ouvrir 'att48.tsp'
+
+
