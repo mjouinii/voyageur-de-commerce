@@ -1,2 +1,2 @@
 #include "monAlgo1.h"
-#include "struct.h"
+#include "TSPInstance.h"
