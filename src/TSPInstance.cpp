@@ -7,114 +7,52 @@
 #include <stdexcept>
 
 // ─────────────────────────────────────────────────────────────
-// CONSTRUCTEUR : lit le fichier .tsp et initialise tout
+// Fonctions privées (internes au fichier .cpp)
+// non déclarées dans le .h car l'utilisateur n'en a pas besoin
 // ─────────────────────────────────────────────────────────────
-TSPInstance::TSPInstance(const std::string& cheminFichier) {
-    std::ifstream fichier(cheminFichier);
 
-    // Vérifier que le fichier existe et est lisible
-    if (!fichier.is_open()) {
-        throw std::runtime_error("Impossible d'ouvrir le fichier : " + cheminFichier);
-    }
-
-    std::string ligne;
-    std::string typeDistance = "";
-    std::string formatPoids  = "";
-    nbVilles = 0;
-
-    // ── Lecture de l'en-tête ──────────────────────────────────
-    // On parcourt le fichier ligne par ligne jusqu'à trouver une section de données
-    while (std::getline(fichier, ligne)) {
-
-        // Supprimer \r (fins de ligne Windows) et espaces autour
-        if (!ligne.empty() && ligne.back() == '\r') ligne.pop_back();
-        size_t debut = ligne.find_first_not_of(" \t\r\n");
-        if (debut != std::string::npos) ligne = ligne.substr(debut);
-
-        // Récupérer le nom de l'instance
-        if (ligne.rfind("NAME", 0) == 0) {
-            size_t pos = ligne.find(':');
-            if (pos != std::string::npos)
-                nom = ligne.substr(pos + 1);
-            // Supprimer espaces autour du nom
-            size_t d = nom.find_first_not_of(" \t");
-            if (d != std::string::npos) nom = nom.substr(d);
-        }
-
-        // Récupérer le nombre de villes
-        else if (ligne.rfind("DIMENSION", 0) == 0) {
-            size_t pos = ligne.find(':');
-            if (pos != std::string::npos)
-                nbVilles = std::stoi(ligne.substr(pos + 1));
-        }
-
-        // Récupérer le type de distance (ATT, EXPLICIT, EUC_2D...)
-        else if (ligne.rfind("EDGE_WEIGHT_TYPE", 0) == 0) {
-            size_t pos = ligne.find(':');
-            if (pos != std::string::npos) {
-                typeDistance = ligne.substr(pos + 1);
-                size_t d = typeDistance.find_first_not_of(" \t");
-                if (d != std::string::npos) typeDistance = typeDistance.substr(d);
-            }
-        }
-
-        // Récupérer le format de la matrice (UPPER_ROW, FULL_MATRIX...)
-        else if (ligne.rfind("EDGE_WEIGHT_FORMAT", 0) == 0) {
-            size_t pos = ligne.find(':');
-            if (pos != std::string::npos) {
-                formatPoids = ligne.substr(pos + 1);
-                size_t d = formatPoids.find_first_not_of(" \t");
-                if (d != std::string::npos) formatPoids = formatPoids.substr(d);
-            }
-        }
-
-        // ── Début des données de distance (UPPER_ROW) ─────────
-        else if (ligne == "EDGE_WEIGHT_SECTION") {
-            lireFormatExplicite(fichier);
-            break;
-        }
-
-        // ── Début des données de coordonnées ──────────────────
-        else if (ligne == "NODE_COORD_SECTION") {
-            lireFormatCoordonnees(fichier);
-            // Construire la matrice depuis les coordonnées
-            construireMatrice();
-            break;
+// Alloue la matrice distances[n][n]
+static void allouerMatrice(TSPInstance* inst) {
+    inst->distances = new double*[inst->nbVilles];
+    for (int i = 0; i < inst->nbVilles; i++) {
+        inst->distances[i] = new double[inst->nbVilles];
+        for (int j = 0; j < inst->nbVilles; j++) {
+            inst->distances[i][j] = 0.0;
         }
     }
-
-    fichier.close();
 }
 
-// ─────────────────────────────────────────────────────────────
-// Lit la matrice UPPER_ROW de bayg29.tsp
-// Format : matrice triangulaire supérieure sans la diagonale
-//   ligne 0 : distances de ville 0 vers villes 1, 2, ..., n-1
-//   ligne 1 : distances de ville 1 vers villes 2, ..., n-1
-//   ...
-// ─────────────────────────────────────────────────────────────
-void TSPInstance::lireFormatExplicite(std::ifstream& fichier) {
-    // Initialiser la matrice n×n à 0
-    distances.assign(nbVilles, std::vector<double>(nbVilles, 0.0));
+// Distance ATT (formule officielle TSPLIB)
+static double distanceATT(Ville& a, Ville& b) {
+    double xd  = a.x - b.x;
+    double yd  = a.y - b.y;
+    double rtt = std::sqrt((xd * xd + yd * yd) / 10.0);
+    int    dij = (int) rtt;
+    if (dij < rtt) dij++;
+    return (double) dij;
+}
+
+// Lit la matrice UPPER_ROW — pour bayg29.tsp
+static void lireFormatExplicite(TSPInstance* inst, std::ifstream& fichier) {
+    allouerMatrice(inst);
 
     std::string ligne;
-    int i = 0; // ville source (ligne de la matrice)
-    int j = 1; // ville destination (colonne de départ = i+1)
+    int i = 0;
+    int j = 1;
 
-    while (std::getline(fichier, ligne) && i < nbVilles - 1) {
+    while (std::getline(fichier, ligne) && i < inst->nbVilles - 1) {
+        if (!ligne.empty() && ligne.back() == '\r') ligne.pop_back();
         if (ligne == "EOF" || ligne == "DISPLAY_DATA_SECTION") break;
 
         std::istringstream iss(ligne);
         double valeur;
 
         while (iss >> valeur) {
-            // La valeur est la distance entre ville i et ville j
-            distances[i][j] = valeur;
-            distances[j][i] = valeur; // matrice symétrique : d(i,j) = d(j,i)
+            inst->distances[i][j] = valeur;
+            inst->distances[j][i] = valeur; // symétrique
 
             j++;
-            // Si on a rempli toute la ligne i, on passe à la ligne i+1
-            if (j >= nbVilles) {
+            if (j >= inst->nbVilles) {
                 i++;
                 j = i + 1;
             }
@@ -122,97 +60,125 @@ void TSPInstance::lireFormatExplicite(std::ifstream& fichier) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Lit les coordonnées x,y de att48.tsp
-// Format :
-//   id   x   y
-//   1  6734  1453
-//   2  2233    10
-//   ...
-// ─────────────────────────────────────────────────────────────
-void TSPInstance::lireFormatCoordonnees(std::ifstream& fichier) {
-    villes.resize(nbVilles);
-    std::string ligne;
+// Lit les coordonnées x,y — pour att48.tsp
+static void lireFormatCoordonnees(TSPInstance* inst, std::ifstream& fichier) {
+    inst->villes = new Ville[inst->nbVilles];
 
-    for (int i = 0; i < nbVilles; i++) {
+    std::string ligne;
+    for (int i = 0; i < inst->nbVilles; i++) {
         std::getline(fichier, ligne);
+        if (!ligne.empty() && ligne.back() == '\r') ligne.pop_back();
         if (ligne == "EOF") break;
 
         std::istringstream iss(ligne);
-        int id;
-        double x, y;
-        iss >> id >> x >> y;
-
-        villes[i].id = id;
-        villes[i].x  = x;
-        villes[i].y  = y;
+        iss >> inst->villes[i].id >> inst->villes[i].x >> inst->villes[i].y;
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Construit la matrice des distances depuis les coordonnées
-// Utilisé pour att48.tsp (type ATT)
-// ─────────────────────────────────────────────────────────────
-void TSPInstance::construireMatrice() {
-    distances.assign(nbVilles, std::vector<double>(nbVilles, 0.0));
+// Construit la matrice depuis les coordonnées
+static void construireMatrice(TSPInstance* inst) {
+    allouerMatrice(inst);
 
-    for (int i = 0; i < nbVilles; i++) {
-        for (int j = 0; j < nbVilles; j++) {
+    for (int i = 0; i < inst->nbVilles; i++) {
+        for (int j = 0; j < inst->nbVilles; j++) {
             if (i != j) {
-                distances[i][j] = distanceATT(villes[i], villes[j]);
+                inst->distances[i][j] = distanceATT(inst->villes[i], inst->villes[j]);
             }
         }
     }
 }
 
 // ─────────────────────────────────────────────────────────────
-// Distance ATT (pseudo-euclidienne) — formule officielle TSPLIB
-// Utilisée pour att48.tsp
+// Fonctions publiques (déclarées dans le .h)
 // ─────────────────────────────────────────────────────────────
-double TSPInstance::distanceATT(const Ville& a, const Ville& b) const {
-    double xd  = a.x - b.x;
-    double yd  = a.y - b.y;
-    double rtt = std::sqrt((xd * xd + yd * yd) / 10.0);
-    int    dij = (int) rtt;
-    if (dij < rtt) dij++; // arrondi au plafond
-    return (double) dij;
+
+// Charge un fichier .tsp et remplit la struct
+void charger(TSPInstance* inst, const std::string& cheminFichier) {
+    // Initialisation
+    inst->villes    = nullptr;
+    inst->distances = nullptr;
+    inst->nbVilles  = 0;
+
+    std::ifstream fichier(cheminFichier);
+    if (!fichier.is_open()) {
+        throw std::runtime_error("Impossible d'ouvrir : " + cheminFichier);
+    }
+
+    std::string ligne;
+
+    while (std::getline(fichier, ligne)) {
+        if (!ligne.empty() && ligne.back() == '\r') ligne.pop_back();
+        size_t debut = ligne.find_first_not_of(" \t");
+        if (debut != std::string::npos) ligne = ligne.substr(debut);
+
+        // Nom de l'instance
+        if (ligne.rfind("NAME", 0) == 0) {
+            size_t pos = ligne.find(':');
+            if (pos != std::string::npos) {
+                inst->nom = ligne.substr(pos + 1);
+                size_t d = inst->nom.find_first_not_of(" \t");
+                if (d != std::string::npos) inst->nom = inst->nom.substr(d);
+            }
+        }
+
+        // Nombre de villes
+        else if (ligne.rfind("DIMENSION", 0) == 0) {
+            size_t pos = ligne.find(':');
+            if (pos != std::string::npos)
+                inst->nbVilles = std::stoi(ligne.substr(pos + 1));
+        }
+
+        // Format bayg29 → distances données directement
+        else if (ligne == "EDGE_WEIGHT_SECTION") {
+            lireFormatExplicite(inst, fichier);
+            break;
+        }
+
+        // Format att48 → coordonnées à calculer
+        else if (ligne == "NODE_COORD_SECTION") {
+            lireFormatCoordonnees(inst, fichier);
+            construireMatrice(inst);
+            break;
+        }
+    }
+
+    fichier.close();
 }
 
-// ─────────────────────────────────────────────────────────────
-// Distance euclidienne standard
-// (non utilisée pour nos instances, mais disponible)
-// ─────────────────────────────────────────────────────────────
-double TSPInstance::distanceEuclidienne(const Ville& a, const Ville& b) const {
-    double xd = a.x - b.x;
-    double yd = a.y - b.y;
-    return std::sqrt(xd * xd + yd * yd);
+// Retourne la distance entre ville i et ville j
+double getDistance(TSPInstance* inst, int i, int j) {
+    return inst->distances[i][j];
 }
 
-// ─────────────────────────────────────────────────────────────
-// Retourne la distance entre ville i et ville j (0-indexé)
-// ─────────────────────────────────────────────────────────────
-double TSPInstance::getDistance(int i, int j) const {
-    return distances[i][j];
-}
-
-// ─────────────────────────────────────────────────────────────
-// Calcule la distance totale d'un chemin complet
-// chemin = {0, 3, 1, 4, 2, 0}  (commence et finit au même endroit)
-// ─────────────────────────────────────────────────────────────
-double TSPInstance::distanceTotale(const std::vector<int>& chemin) const {
+// Calcule la distance totale d'un chemin
+double distanceTotale(TSPInstance* inst, int* chemin, int taille) {
     double total = 0.0;
-    for (int i = 0; i < (int)chemin.size() - 1; i++) {
-        total += distances[chemin[i]][chemin[i + 1]];
+    for (int i = 0; i < taille - 1; i++) {
+        total += inst->distances[chemin[i]][chemin[i + 1]];
     }
     return total;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Affiche un résumé de l'instance dans le terminal
-// ─────────────────────────────────────────────────────────────
-void TSPInstance::afficher() const {
+// Affiche un résumé de l'instance
+void afficher(TSPInstance* inst) {
     std::cout << "================================" << std::endl;
-    std::cout << "Instance TSP : " << nom        << std::endl;
-    std::cout << "Nombre de villes : " << nbVilles << std::endl;
+    std::cout << "Instance TSP : " << inst->nom          << std::endl;
+    std::cout << "Nombre de villes : " << inst->nbVilles << std::endl;
     std::cout << "================================" << std::endl;
+}
+
+// Libère toute la mémoire allouée
+void libererMemoire(TSPInstance* inst) {
+    if (inst->distances != nullptr) {
+        for (int i = 0; i < inst->nbVilles; i++) {
+            delete[] inst->distances[i];
+        }
+        delete[] inst->distances;
+        inst->distances = nullptr;
+    }
+
+    if (inst->villes != nullptr) {
+        delete[] inst->villes;
+        inst->villes = nullptr;
+    }
 }
