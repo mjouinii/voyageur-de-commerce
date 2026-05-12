@@ -5,7 +5,7 @@
 CXX = g++ 
 CXXFLAGS = -Wall -Iinclude
 
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+LDFLAGS = -lm -lsfml-graphics -lsfml-window -lsfml-system
 
 # Liste tous les fichiers finissant par .cpp dans src
 # 	'wildcard' -> caractère génériques - est une fonction qui scanne le disque

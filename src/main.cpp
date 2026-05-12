@@ -77,6 +77,14 @@ static bool test_file(const char *filename) {
 
 int main(int argc, char *argv[]) {
 
+    FILE *log_file = std::fopen("logs/output.log", "w"); // "w" = ecrase a chaque fois
+    if (log_file == nullptr) {
+        std::fprintf(stderr, "Impossible d'ouvrir logs/output.log\n");
+        return EXIT_FAILURE;
+    }
+    // Redirection de stdout vers le fichier
+    std::freopen("logs/output.log", "w", stdout);
+
     std::printf("==============================================\n");
     std::printf("  Parseur TSPLIB\n");
     std::printf("==============================================\n\n");

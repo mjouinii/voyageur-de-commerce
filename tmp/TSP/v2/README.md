@@ -51,3 +51,14 @@ Génère un Makefile compatible Windows (MinGW) tout en continuant de fonctionne
 
 ## 🤝 Contributeur 
 Jouini Moslem & Alexis Kerboul
+
+
+
+
+
+
+
+
+## Installation de SFML
+sudo apt install libsfml-dev
+

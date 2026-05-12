@@ -1,3 +1,4 @@
+#include "TSPInstance.h"    // INDISPENSABLE : définit TSPInstance et les types de poids
 #include "CoordDistanceCalc.h"
 #include <cstdio>
 #include <cmath>

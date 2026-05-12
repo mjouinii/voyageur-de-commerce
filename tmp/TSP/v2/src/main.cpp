@@ -1,5 +1,6 @@
 #include "TSPParser.h"
 #include "TSPInstance.h"
+#include "Visualizer.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -70,12 +71,21 @@ static bool test_file(const char *filename) {
     }
 
     print_instance_info(&inst);
+    visualize(&inst);       /* <-- appel de la visualisation */
     tsp_free(&inst);
     std::printf("\n");
     return true;
 }
 
 int main(int argc, char *argv[]) {
+
+    FILE *log_file = std::fopen("logs/output.log", "w"); // "w" = ecrase a chaque fois
+    if (log_file == nullptr) {
+        std::fprintf(stderr, "Impossible d'ouvrir logs/output.log\n");
+        return EXIT_FAILURE;
+    }
+    // Redirection de stdout vers le fichier
+    std::freopen("logs/output.log", "w", stdout);
 
     std::printf("==============================================\n");
     std::printf("  Parseur TSPLIB\n");
