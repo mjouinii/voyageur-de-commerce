@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TSPInstance.h"
+#include "TSPInstance2.h"
 
 // Nearest Neighbor (Plus Proche Voisin)
 // Trouve un chemin en allant toujours à la ville non visitée la plus proche

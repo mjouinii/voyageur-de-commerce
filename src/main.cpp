@@ -1,5 +1,6 @@
 #include "TSPParser.h"
 #include "TSPInstance.h"
+#include "Visualizer.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -70,6 +71,7 @@ static bool test_file(const char *filename) {
     }
 
     print_instance_info(&inst);
+    visualize(&inst);       /* <-- appel de la visualisation */
     tsp_free(&inst);
     std::printf("\n");
     return true;

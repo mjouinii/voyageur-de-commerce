@@ -5,6 +5,8 @@
 CXX = g++ 
 CXXFLAGS = -Wall -Iinclude
 
+LDFLAGS = -lm -lsfml-graphics -lsfml-window -lsfml-system
+
 # Liste tous les fichiers finissant par .cpp dans src
 # 	'wildcard' -> caractère génériques - est une fonction qui scanne le disque
 SOURCES = $(wildcard src/*.cpp)
@@ -17,7 +19,7 @@ OBJECTS = $(patsubst src/%.cpp, build/%.o, $(SOURCES))
 
 # Création de l'exécutable
 monExecutable.out : $(OBJECTS)
-	$(CXX) $(OBJECTS) -o monExecutable.out
+	$(CXX) $(OBJECTS) -o monExecutable.out $(LDFLAGS)
 
 # Règle Générique
 # 	"build/%.o: src/%.cpp" fabrique n'importe quel fichier .o dans

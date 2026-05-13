@@ -1,4 +1,5 @@
 #include "monAlgo1.h"
+#include "TSPInstance2.h"
 #include <iostream>
 
 // ─────────────────────────────────────────────────────────────
