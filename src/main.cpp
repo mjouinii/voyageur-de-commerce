@@ -1,6 +1,8 @@
 #include "TSPParser.h"
 #include "TSPInstance.h"
 #include "Visualizer.h"
+#include "monAlgo1.h"
+#include "monAlgo2.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -18,15 +20,12 @@ static const char *weight_type_name(int type) {
 
 static void print_full_matrix(const TSPInstance *inst) {
     int n = inst->n;
-
     std::printf("  Matrice des distances (%dx%d) :\n\n", n, n);
-
     std::printf("      ");
     for (int j = 0; j < n; j++) std::printf("%7d", j);
     std::printf("\n      ");
     for (int j = 0; j < n; j++) std::printf("-------");
     std::printf("\n");
-
     for (int i = 0; i < n; i++) {
         std::printf("  %2d |", i);
         for (int j = 0; j < n; j++)
@@ -41,7 +40,6 @@ static void print_instance_info(const TSPInstance *inst) {
     std::printf("  Type      : %s\n", weight_type_name(inst->weight_type));
     std::printf("\n");
     print_full_matrix(inst);
-
     if (inst->coords != nullptr) {
         int lim = (inst->n < 5) ? inst->n : 5;
         std::printf("\n  Coordonnees (5 premiers noeuds) :\n");
@@ -71,25 +69,57 @@ static bool test_file(const char *filename) {
     }
 
     print_instance_info(&inst);
-    visualize(&inst);       /* <-- appel de la visualisation */
+
+    // ── Algorithmes TSP ──────────────────────────────────────
+
+    int n = inst.n;
+    int* meilleurChemin = nullptr;
+    int  meilleureDist  = -1;
+
+    // Lancer Nearest Neighbor depuis chaque ville de départ
+    for (int depart = 0; depart < n; depart++) {
+        int* chemin = nearestNeighbor(&inst, depart);
+
+        // Calculer la distance totale
+        int dist = 0;
+        for (int i = 0; i < n; i++)
+            dist += inst.dist[chemin[i]][chemin[i + 1]];
+
+        // Garder le meilleur chemin
+        if (meilleureDist == -1 || dist < meilleureDist) {
+            delete[] meilleurChemin;
+            meilleurChemin = chemin;
+            meilleureDist  = dist;
+        } else {
+            delete[] chemin;
+        }
+    }
+
+    // Améliorer avec 2-opt
+    twoOpt(&inst, meilleurChemin, n + 1);
+
+    // Recalculer la distance après 2-opt
+    int distFinale = 0;
+    for (int i = 0; i < n; i++)
+        distFinale += inst.dist[meilleurChemin[i]][meilleurChemin[i + 1]];
+
+    // Afficher le résultat
+    std::printf("\n  Meilleur chemin trouve :\n  ");
+    for (int i = 0; i <= n; i++)
+        std::printf("%d%s", meilleurChemin[i], i < n ? " -> " : "\n");
+    std::printf("  Distance : %d\n\n", distFinale);
+
+    delete[] meilleurChemin;
+
+    // ────────────────────────────────────────────────────────
+
+    visualize(&inst);
     tsp_free(&inst);
     std::printf("\n");
     return true;
 }
 
 int main(int argc, char *argv[]) {
-
-    FILE *log_file = std::fopen("logs/output.log", "w"); // "w" = ecrase a chaque fois
-    if (log_file == nullptr) {
-        std::fprintf(stderr, "Impossible d'ouvrir logs/output.log\n");
-        return EXIT_FAILURE;
-    }
-    // Redirection de stdout vers le fichier
-    std::freopen("logs/output.log", "w", stdout);
-
-    std::printf("==============================================\n");
-    std::printf("  Parseur TSPLIB\n");
-    std::printf("==============================================\n\n");
 
     if (argc < 2) {
         std::fprintf(stderr,
@@ -101,6 +131,13 @@ int main(int argc, char *argv[]) {
             argv[0], argv[0], argv[0], INSTANCES_DIR);
         return EXIT_FAILURE;
     }
+
+    // Redirection de stdout vers le fichier log
+    std::freopen("logs/output.log", "w", stdout);
+
+    std::printf("==============================================\n");
+    std::printf("  Solveur TSP - Nearest Neighbor + 2-opt\n");
+    std::printf("==============================================\n\n");
 
     int nb_ok    = 0;
     int nb_echec = 0;

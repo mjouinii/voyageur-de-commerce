@@ -1,5 +1,5 @@
 #include "monAlgo1.h"
-#include "TSPInstance2.h"
+#include "TSPInstance.h"
 #include <iostream>
 
 // ─────────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@
 // ─────────────────────────────────────────────────────────────
 int* nearestNeighbor(TSPInstance* inst, int villeDepart) {
 
-    int n = inst->nbVilles;
+    int n = inst->n;
 
     // ── Étape 1 : préparer les outils ────────────────────────
 
@@ -48,7 +48,7 @@ int* nearestNeighbor(TSPInstance* inst, int villeDepart) {
 
     for (int etape = 1; etape < n; etape++) {
 
-        double meilleureDist = -1;   // distance minimale trouvée
+        int meilleureDist = -1;   // distance minimale trouvée
         int    meilleureVille = -1;  // indice de la meilleure ville
 
         // Chercher la ville non visitée la plus proche
@@ -57,7 +57,7 @@ int* nearestNeighbor(TSPInstance* inst, int villeDepart) {
             // On ignore les villes déjà visitées
             if (visite[j]) continue;
 
-            double dist = inst->distances[actuel][j];
+            double dist = inst->dist[actuel][j];
 
             // Si c'est la première ville non visitée
             // OU si elle est plus proche que la meilleure trouvée

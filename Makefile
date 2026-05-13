@@ -3,10 +3,8 @@
 # 	"-Iinclude" - permet d'ajouter le dossier include à la liste des chemins
 #	 de recherche prioritaires
 CXX = g++ 
-CXXFLAGS = -Wall -Iinclude
-
-LDFLAGS = -lm -lsfml-graphics -lsfml-window -lsfml-system
-
+CXXFLAGS = -Wall -Iinclude -IC:/SFML-2.5.1/include
+LDFLAGS = -lm -LC:/SFML-2.5.1/lib -lsfml-graphics -lsfml-window -lsfml-system
 # Liste tous les fichiers finissant par .cpp dans src
 # 	'wildcard' -> caractère génériques - est une fonction qui scanne le disque
 SOURCES = $(wildcard src/*.cpp)
