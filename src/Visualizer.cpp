@@ -4,8 +4,8 @@
 #include <cmath>
 #include <string>
 
-static const int   WINDOW_W    = 900;
-static const int   WINDOW_H    = 900;
+static const int   WINDOW_W    = 800;
+static const int   WINDOW_H    = 700;
 static const int   MARGIN      = 60;
 static const float NODE_RADIUS = 6.0f;
 static const float PI          = 3.14159265358979f;
