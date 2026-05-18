@@ -13,70 +13,55 @@ static const sf::Color COLOR_BG   (30,  30,  30);
 static const sf::Color COLOR_NODE (220, 80,  80);
 static const sf::Color COLOR_TEXT (255, 255, 255);
 
+// Remappe une valeur de [in_min, in_max] vers [out_min, out_max]
 static float remap(float value, float in_min, float in_max,
                    float out_min, float out_max) {
     if (in_max - in_min < 1e-9f) return (out_min + out_max) / 2.0f;
     return out_min + (value - in_min) / (in_max - in_min) * (out_max - out_min);
 }
 
-static sf::Vector2f *make_circle_positions(int n) {
-    sf::Vector2f *positions = new sf::Vector2f[n];
-    float cx = WINDOW_W / 2.0f;
-    float cy = WINDOW_H / 2.0f;
-    float r  = (WINDOW_W - 2 * MARGIN) / 2.0f;
-    for (int i = 0; i < n; i++) {
-        float angle  = 2.0f * PI * i / (float)n - PI / 2.0f;
-        positions[i] = sf::Vector2f(cx + r * std::cos(angle),
-                                    cy + r * std::sin(angle));
-    }
-    return positions;
-}
-
-static sf::Vector2f *make_coord_positions(const TSPInstance *inst) {
-    int n = inst->n;
-    sf::Vector2f *positions = new sf::Vector2f[n];
-    float x_min = inst->coords[0].x, x_max = inst->coords[0].x;
-    float y_min = inst->coords[0].y, y_max = inst->coords[0].y;
-    for (int i = 1; i < n; i++) {
-        if (inst->coords[i].x < x_min) x_min = inst->coords[i].x;
-        if (inst->coords[i].x > x_max) x_max = inst->coords[i].x;
-        if (inst->coords[i].y < y_min) y_min = inst->coords[i].y;
-        if (inst->coords[i].y > y_max) y_max = inst->coords[i].y;
-    }
-    float draw_w = (float)(WINDOW_W - 2 * MARGIN);
-    float draw_h = (float)(WINDOW_H - 2 * MARGIN);
-    for (int i = 0; i < n; i++) {
-        float px = remap(inst->coords[i].x, x_min, x_max,
-                         (float)MARGIN, (float)MARGIN + draw_w);
-        float py = remap(inst->coords[i].y, y_min, y_max,
-                         (float)MARGIN + draw_h, (float)MARGIN);
-        positions[i] = sf::Vector2f(px, py);
-    }
-    return positions;
-}
-
+// Ouvre la fenêtre et affiche les villes avec leurs coordonnées réelles
 void visualize(const TSPInstance *inst) {
-    int n = inst->n;
-    bool has_coords = (inst->coords != nullptr);
-    sf::Vector2f *positions = has_coords
-        ? make_coord_positions(inst)
-        : make_circle_positions(n);
 
-    sf::Font font;
-    bool has_font = font.loadFromFile(
-    "C:/Windows/Fonts/arial.ttf");
+    // Si pas de coordonnées disponibles, on ne peut rien afficher
+    if (!inst->has_coords || inst->coords == nullptr) {
+        std::printf("  [Visualizer] Pas de coordonnées disponibles,"
+                    " aucune fenêtre ouverte.\n");
+        return;
+    }
+
+    int n = inst->n;
+
+    // Calcul des bornes pour le remapping des coordonnées à l'écran
+    float x_min = static_cast<float>(inst->coords[0].x);
+    float x_max = x_min;
+    float y_min = static_cast<float>(inst->coords[0].y);
+    float y_max = y_min;
+
+    for (int i = 1; i < n; i++) {
+        float cx = static_cast<float>(inst->coords[i].x);
+        float cy = static_cast<float>(inst->coords[i].y);
+        if (cx < x_min) x_min = cx;
+        if (cx > x_max) x_max = cx;
+        if (cy < y_min) y_min = cy;
+        if (cy > y_max) y_max = cy;
+    }
+
+    // Création de la fenêtre SFML
     sf::RenderWindow window(
         sf::VideoMode(WINDOW_W, WINDOW_H),
-        std::string("TSP - ") + inst->name,
-        sf::Style::Titlebar | sf::Style::Close
+        inst->name
     );
     window.setFramerateLimit(60);
 
-    sf::CircleShape node_shape(NODE_RADIUS);
-    node_shape.setFillColor(COLOR_NODE);
-    node_shape.setOrigin(NODE_RADIUS, NODE_RADIUS);
+    // Chargement de la police pour les étiquettes
+    sf::Font font;
+    bool font_loaded = font.loadFromFile("/usr/share/fonts/truetype/"
+                                         "dejavu/DejaVuSans.ttf");
 
+    // Boucle principale d'affichage
     while (window.isOpen()) {
+
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
@@ -85,22 +70,43 @@ void visualize(const TSPInstance *inst) {
                 event.key.code == sf::Keyboard::Escape)
                 window.close();
         }
+
         window.clear(COLOR_BG);
+
+        // Dessin de chaque ville
         for (int i = 0; i < n; i++) {
-            node_shape.setPosition(positions[i]);
-            window.draw(node_shape);
-            if (has_font) {
+
+            // Remapping des coordonnées vers l'espace fenêtre
+            float sx = remap(static_cast<float>(inst->coords[i].x),
+                             x_min, x_max,
+                             static_cast<float>(MARGIN),
+                             static_cast<float>(WINDOW_W - MARGIN));
+
+            // L'axe Y est inversé en SFML (0 en haut)
+            float sy = remap(static_cast<float>(inst->coords[i].y),
+                             y_min, y_max,
+                             static_cast<float>(WINDOW_H - MARGIN),
+                             static_cast<float>(MARGIN));
+
+            // Cercle représentant la ville
+            sf::CircleShape node(NODE_RADIUS);
+            node.setFillColor(COLOR_NODE);
+            node.setOrigin(NODE_RADIUS, NODE_RADIUS);
+            node.setPosition(sx, sy);
+            window.draw(node);
+
+            // Étiquette numérique si la police est disponible
+            if (font_loaded) {
                 sf::Text label;
                 label.setFont(font);
-                label.setString(std::to_string(i));
+                label.setString(std::to_string(i + 1));
                 label.setCharacterSize(11);
                 label.setFillColor(COLOR_TEXT);
-                label.setPosition(positions[i].x + NODE_RADIUS + 2,
-                                  positions[i].y - NODE_RADIUS - 2);
+                label.setPosition(sx + NODE_RADIUS + 2.0f, sy - NODE_RADIUS);
                 window.draw(label);
             }
         }
+
         window.display();
     }
-    delete[] positions;
 }

@@ -1,5 +1,0 @@
-GDB (GNU Debugger) Linux / Terminal
-Visual Studio Degugger Windows
-
-ligne de commande on ajoute le flag -g : 
-'g++ -g main.cpp -o mon_programme'

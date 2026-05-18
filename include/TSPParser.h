@@ -4,10 +4,8 @@
 #include "TSPInstance.h"
 
 /*
- * tsp_load
- * --------
  * Charge un fichier .tsp au format TSPLIB dans 'inst'.
- * Retourne true si succes, false sinon.
+ * Retourne true si succès, false sinon.
  */
 bool tsp_load(const char *filepath, TSPInstance *inst);
 
