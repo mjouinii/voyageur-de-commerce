@@ -18,38 +18,6 @@ static const char *weight_type_name(int type) {
     }
 }
 
-static void print_full_matrix(const TSPInstance *inst) {
-    int n = inst->n;
-    std::printf("  Matrice des distances (%dx%d) :\n\n", n, n);
-    std::printf("      ");
-    for (int j = 0; j < n; j++) std::printf("%7d", j);
-    std::printf("\n      ");
-    for (int j = 0; j < n; j++) std::printf("-------");
-    std::printf("\n");
-    for (int i = 0; i < n; i++) {
-        std::printf("  %2d |", i);
-        for (int j = 0; j < n; j++)
-            std::printf("%7d", inst->dist[i][j]);
-        std::printf("\n");
-    }
-}
-
-static void print_instance_info(const TSPInstance *inst) {
-    std::printf("  Nom       : %s\n", inst->name);
-    std::printf("  Dimension : %d\n", inst->n);
-    std::printf("  Type      : %s\n", weight_type_name(inst->weight_type));
-    std::printf("\n");
-    print_full_matrix(inst);
-    if (inst->coords != nullptr) {
-        int lim = (inst->n < 5) ? inst->n : 5;
-        std::printf("\n  Coordonnees (5 premiers noeuds) :\n");
-        for (int i = 0; i < lim; i++) {
-            std::printf("    Noeud %2d : (%.1f, %.1f)\n",
-                        i, inst->coords[i].x, inst->coords[i].y);
-        }
-    }
-}
-
 static void build_path(char *out, int out_size, const char *filename) {
     std::strncpy(out, INSTANCES_DIR, out_size - 1);
     out[out_size - 1] = '\0';
@@ -68,13 +36,20 @@ static bool test_file(const char *filename) {
         return false;
     }
 
-    print_instance_info(&inst);
+    // ── Infos de base ────────────────────────────────────────
+    std::printf("\n");
+    std::printf("  Nom       : %s\n", inst.name);
+    std::printf("  Dimension : %d villes\n", inst.n);
+    std::printf("  Type      : %s\n", weight_type_name(inst.weight_type));
+    std::printf("\n");
 
     // ── Algorithmes TSP ──────────────────────────────────────
 
     int n = inst.n;
     int* meilleurChemin = nullptr;
     int  meilleureDist  = -1;
+
+    std::printf("  Recherche du meilleur chemin...\n");
 
     // Lancer Nearest Neighbor depuis chaque ville de départ
     for (int depart = 0; depart < n; depart++) {
@@ -95,6 +70,8 @@ static bool test_file(const char *filename) {
         }
     }
 
+    std::printf("  Nearest Neighbor : distance = %d\n", meilleureDist);
+
     // Améliorer avec 2-opt
     twoOpt(&inst, meilleurChemin, n + 1);
 
@@ -103,17 +80,24 @@ static bool test_file(const char *filename) {
     for (int i = 0; i < n; i++)
         distFinale += inst.dist[meilleurChemin[i]][meilleurChemin[i + 1]];
 
-    // Afficher le résultat
-    std::printf("\n  Meilleur chemin trouve :\n  ");
-    for (int i = 0; i <= n; i++)
-        std::printf("%d%s", meilleurChemin[i], i < n ? " -> " : "\n");
-    std::printf("  Distance : %d\n\n", distFinale);
+    std::printf("  Apres 2-opt      : distance = %d\n", distFinale);
+    std::printf("\n");
+
+    // ── Afficher le chemin ───────────────────────────────────
+    std::printf("  Meilleur chemin trouve :\n  ");
+    for (int i = 0; i <= n; i++) {
+        std::printf("%d", meilleurChemin[i]);
+        if (i < n) std::printf(" -> ");
+    }
+    std::printf("\n\n");
+    std::printf("  Distance finale : %d\n", distFinale);
+    std::printf("\n");
+
+    // ── Visualisation ────────────────────────────────────────
+    std::printf("  Ouverture de la fenetre graphique...\n");
+    visualize(&inst);
 
     delete[] meilleurChemin;
-
-    // ────────────────────────────────────────────────────────
-
-    visualize(&inst);
     tsp_free(&inst);
     std::printf("\n");
     return true;
@@ -131,9 +115,6 @@ int main(int argc, char *argv[]) {
             argv[0], argv[0], argv[0], INSTANCES_DIR);
         return EXIT_FAILURE;
     }
-
-    // Redirection de stdout vers le fichier log
-    std::freopen("logs/output.log", "w", stdout);
 
     std::printf("==============================================\n");
     std::printf("  Solveur TSP - Nearest Neighbor + 2-opt\n");
