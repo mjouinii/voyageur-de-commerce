@@ -98,7 +98,7 @@ static bool test_file(const char *filename) {
     // ── Visualisation (uniquement si des coordonnées sont disponibles) ───────
     if (inst.has_coords) {
         std::printf("  Ouverture de la fenêtre graphique...\n");
-        visualize(&inst);
+        visualize(&inst, meilleurChemin, n + 1, distFinale);
     } else {
         std::printf("  Pas de coordonnées : visualisation ignorée.\n");
     }
