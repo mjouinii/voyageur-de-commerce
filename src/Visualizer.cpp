@@ -52,8 +52,11 @@ void visualize(const TSPInstance *inst, int* chemin, int taille, int distance) {
     }
 
     sf::Font font;
+#ifdef _WIN32
     bool has_font = font.loadFromFile("C:/Windows/Fonts/arial.ttf");
-
+#else
+    bool has_font = font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
+#endif
     sf::RenderWindow window(
         sf::VideoMode(WINDOW_W, WINDOW_H),
         std::string("TSP - ") + inst->name,
