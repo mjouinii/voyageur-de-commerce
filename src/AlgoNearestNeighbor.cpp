@@ -1,4 +1,4 @@
-#include "monAlgo1.h"
+#include "AlgoNearestNeighbor.h"
 #include "TSPInstance.h"
 #include <iostream>
 

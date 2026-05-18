@@ -1,4 +1,4 @@
-#include "monAlgo2.h"
+#include "Algo2OPT.h"
 
 // ─────────────────────────────────────────────────────────────
 // Inverse le segment du chemin entre les indices gauche et droit

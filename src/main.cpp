@@ -1,8 +1,8 @@
 #include "TSPParser.h"
 #include "TSPInstance.h"
 #include "Visualizer.h"
-#include "monAlgo1.h"
-#include "monAlgo2.h"
+#include "AlgoNearestNeighbor.h"
+#include "Algo2OPT.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
