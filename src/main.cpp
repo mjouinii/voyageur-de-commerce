@@ -83,11 +83,11 @@ static bool test_file(const char *filename) {
     for (int i = 0; i < n; i++)
         distFinale += inst.dist[meilleurChemin[i]][meilleurChemin[i + 1]];
 
-    std::printf("  Après 2-opt      : distance = %d\n", distFinale);
+    std::printf("  Apres 2-opt      : distance = %d\n", distFinale);
     std::printf("\n");
 
     // ── Affichage du chemin ──────────────────────────────────────────────────
-    std::printf("  Meilleur chemin trouvé :\n  ");
+    std::printf("  Meilleur chemin trouve :\n  ");
     for (int i = 0; i <= n; i++) {
         std::printf("%d", meilleurChemin[i]);
         if (i < n) std::printf(" -> ");
@@ -97,10 +97,10 @@ static bool test_file(const char *filename) {
 
     // ── Visualisation (uniquement si des coordonnées sont disponibles) ───────
     if (inst.has_coords) {
-        std::printf("  Ouverture de la fenêtre graphique...\n");
+        std::printf("  Ouverture de la fenetre graphique...\n");
         visualize(&inst, meilleurChemin, n + 1, distFinale);
     } else {
-        std::printf("  Pas de coordonnées : visualisation ignorée.\n");
+        std::printf("  Pas de coordonnees : visualisation ignoree.\n");
     }
 
     delete[] meilleurChemin;
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
             "Exemples :\n"
             "  %s bayg29.tsp\n"
             "  %s bayg29.tsp att48.tsp\n"
-            "\nLes fichiers sont recherchés dans le répertoire '%s'.\n",
+            "\nLes fichiers sont recherchés dans le repertoire '%s'.\n",
             argv[0], argv[0], argv[0], INSTANCES_DIR);
         return EXIT_FAILURE;
     }
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
 
     // ── Bilan final ──────────────────────────────────────────────────────────
     std::printf("==============================================\n");
-    std::printf("  Bilan : %d succès, %d échec(s)\n", nb_ok, nb_echec);
+    std::printf("  Bilan : %d succes, %d echec(s)\n", nb_ok, nb_echec);
     std::printf("==============================================\n");
 
     return (nb_echec == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
