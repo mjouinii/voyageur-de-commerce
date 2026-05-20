@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TSP Optimisé — Collaborateurs</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-logo">TSP</span>
+      <span class="nav-subtitle">C++ Optimization</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link">Accueil</a></li>
+      <li><a href="collaborateurs.html" class="nav-link active">Collaborateurs</a></li>
+      <li><a href="algorithme.html" class="nav-link">Algorithme</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Menu" onclick="toggleMenu()">&#9776;</button>
+  </nav>
+
+  <!-- ===== EN-TÊTE DE PAGE ===== -->
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Collaborateurs</h1>
+      <p class="page-subtitle">Présentation des membres du projet</p>
+    </div>
+  </header>
+
+  <!-- ===== CONTENU ===== -->
+  <main class="container">
+
+    <section class="section">
+      <p>
+        Ce projet a été réalisé en binôme dans le cadre de
+        <strong>[Nom du cours / de l'UE]</strong>. Chaque membre a contribué
+        à la conception, au développement et à la rédaction du rapport.
+      </p>
+    </section>
+
+    <!-- Fiches collaborateurs -->
+    <section class="section">
+      <div class="collab-grid">
+
+        <!-- Collaborateur 1 -->
+        <article class="collab-card">
+          <div class="collab-avatar">
+            <span class="avatar-initials">AB</span>
+          </div>
+          <div class="collab-info">
+            <h2 class="collab-name">[Prénom Nom]</h2>
+            <p class="collab-role">Étudiant(e) — [Formation]</p>
+            <hr class="collab-divider" />
+            <p><strong>Contact :</strong> <a href="mailto:email@exemple.com">email@exemple.com</a></p>
+            <p><strong>Numéro étudiant :</strong> [XXXXXXXX]</p>
+            <h3 class="collab-contrib-title">Contributions au projet</h3>
+            <ul class="collab-list">
+              <li>Implémentation de l'algorithme [à préciser]</li>
+              <li>Rédaction de la documentation</li>
+              <li>Tests et benchmarks</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Collaborateur 2 -->
+        <article class="collab-card">
+          <div class="collab-avatar">
+            <span class="avatar-initials">CD</span>
+          </div>
+          <div class="collab-info">
+            <h2 class="collab-name">[Prénom Nom]</h2>
+            <p class="collab-role">Étudiant(e) — [Formation]</p>
+            <hr class="collab-divider" />
+            <p><strong>Contact :</strong> <a href="mailto:email@exemple.com">email@exemple.com</a></p>
+            <p><strong>Numéro étudiant :</strong> [XXXXXXXX]</p>
+            <h3 class="collab-contrib-title">Contributions au projet</h3>
+            <ul class="collab-list">
+              <li>Conception de la structure de données</li>
+              <li>Optimisation du code C++</li>
+              <li>Analyse et visualisation des résultats</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Répartition des tâches -->
+    <section class="section section-alt">
+      <h2 class="section-title">Répartition des tâches</h2>
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>Tâche</th>
+            <th>[Prénom 1]</th>
+            <th>[Prénom 2]</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Recherche bibliographique</td>
+            <td class="center">&#10003;</td>
+            <td class="center">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Algorithme force brute</td>
+            <td class="center">&#10003;</td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td>Heuristique [à préciser]</td>
+            <td class="center"></td>
+            <td class="center">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Tests unitaires</td>
+            <td class="center">&#10003;</td>
+            <td class="center">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Rapport / Site web</td>
+            <td class="center">&#10003;</td>
+            <td class="center">&#10003;</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>Projet TSP — Optimisation en C++ &copy; 2025</p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>

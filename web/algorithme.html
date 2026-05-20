@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TSP Optimisé — Algorithme</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-logo">TSP</span>
+      <span class="nav-subtitle">C++ Optimization</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link">Accueil</a></li>
+      <li><a href="collaborateurs.html" class="nav-link">Collaborateurs</a></li>
+      <li><a href="algorithme.html" class="nav-link active">Algorithme</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Menu" onclick="toggleMenu()">&#9776;</button>
+  </nav>
+
+  <!-- ===== EN-TÊTE DE PAGE ===== -->
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Algorithme &amp; Code</h1>
+      <p class="page-subtitle">Détail de l'implémentation C++ du TSP</p>
+    </div>
+  </header>
+
+  <!-- ===== CONTENU ===== -->
+  <main class="container">
+
+    <!-- Sommaire -->
+    <section class="section">
+      <h2 class="section-title">Sommaire</h2>
+      <ol class="toc-list">
+        <li><a href="#probleme">Rappel du problème</a></li>
+        <li><a href="#approches">Approches algorithmiques</a></li>
+        <li><a href="#structures">Structures de données</a></li>
+        <li><a href="#implementation">Implémentation principale</a></li>
+        <li><a href="#complexite">Analyse de la complexité</a></li>
+        <li><a href="#resultats">Résultats &amp; performances</a></li>
+      </ol>
+    </section>
+
+    <!-- 1. Rappel du problème -->
+    <section class="section" id="probleme">
+      <h2 class="section-title">1. Rappel du problème</h2>
+      <p>
+        Soit un graphe complet <em>G = (V, E)</em> où <em>V</em> est l'ensemble
+        des villes et <em>E</em> l'ensemble des arêtes pondérées par une distance.
+        L'objectif est de trouver un cycle hamiltonien de coût minimal, c'est-à-dire
+        un chemin passant par chaque sommet exactement une fois et revenant au départ
+        avec une distance totale minimale.
+      </p>
+      <p>
+        Formellement : minimiser
+        <code class="inline-code">∑ d(v<sub>i</sub>, v<sub>i+1</sub>)</code>
+        pour toute permutation des villes.
+      </p>
+    </section>
+
+    <!-- 2. Approches -->
+    <section class="section section-alt" id="approches">
+      <h2 class="section-title">2. Approches algorithmiques</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h3>Force brute</h3>
+          <p>
+            Évaluation exhaustive de toutes les permutations. Garantit l'optimalité
+            mais sa complexité <code class="inline-code">O(n!)</code> la rend
+            impraticable au-delà d'une quinzaine de villes.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Heuristique gloutonne</h3>
+          <p>
+            À chaque étape, sélection de la ville non visitée la plus proche
+            (<em>nearest neighbour</em>). Complexité
+            <code class="inline-code">O(n²)</code>, résultat sous-optimal.
+          </p>
+        </div>
+        <div class="card">
+          <h3>[Algorithme retenu]</h3>
+          <p>
+            Description de l'approche principale choisie pour le projet
+            (ex : recuit simulé, algorithme génétique, 2-opt…).
+            Complexité à préciser.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Structures de données -->
+    <section class="section" id="structures">
+      <h2 class="section-title">3. Structures de données</h2>
+      <p>
+        Décrire ici les structures utilisées dans le code C++ : matrice d'adjacence,
+        liste d'adjacence, représentation d'un tour, etc.
+      </p>
+      <pre class="code-block"><code>// Exemple : représentation d'un graphe par matrice d'adjacence
+#include &lt;vector&gt;
+
+using Matrix = std::vector&lt;std::vector&lt;double&gt;&gt;;
+
+Matrix buildGraph(int n) {
+    // Initialise une matrice n x n
+    return Matrix(n, std::vector&lt;double&gt;(n, 0.0));
+}</code></pre>
+    </section>
+
+    <!-- 4. Implémentation -->
+    <section class="section section-alt" id="implementation">
+      <h2 class="section-title">4. Implémentation principale</h2>
+      <p>
+        Cette section présente le cœur de l'algorithme implémenté.
+        Remplacer le bloc ci-dessous par le vrai code du projet.
+      </p>
+      <pre class="code-block"><code>// [Placeholder] — À remplacer par le code réel du projet
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;numeric&gt;
+#include &lt;limits&gt;
+
+// Calcul du coût total d'un tour donné
+double tourCost(const std::vector&lt;int&gt;&amp; tour, const Matrix&amp; dist) {
+    double cost = 0.0;
+    int n = tour.size();
+    for (int i = 0; i &lt; n; ++i) {
+        cost += dist[tour[i]][tour[(i + 1) % n]];
+    }
+    return cost;
+}
+
+// [Nom de l'algorithme principal] — à compléter
+std::vector&lt;int&gt; solveTSP(const Matrix&amp; dist) {
+    int n = dist.size();
+    std::vector&lt;int&gt; tour(n);
+    std::iota(tour.begin(), tour.end(), 0); // 0, 1, 2, ..., n-1
+
+    // TODO : implémenter la logique de l'algorithme ici
+
+    return tour;
+}
+
+int main() {
+    // TODO : charger les données et appeler solveTSP()
+    return 0;
+}</code></pre>
+    </section>
+
+    <!-- 5. Complexité -->
+    <section class="section" id="complexite">
+      <h2 class="section-title">5. Analyse de la complexité</h2>
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>Algorithme</th>
+            <th>Complexité temporelle</th>
+            <th>Complexité spatiale</th>
+            <th>Qualité de la solution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Force brute</td>
+            <td><code class="inline-code">O(n!)</code></td>
+            <td><code class="inline-code">O(n)</code></td>
+            <td>Optimale</td>
+          </tr>
+          <tr>
+            <td>Plus proche voisin</td>
+            <td><code class="inline-code">O(n²)</code></td>
+            <td><code class="inline-code">O(n)</code></td>
+            <td>Approchée</td>
+          </tr>
+          <tr>
+            <td>[Algorithme retenu]</td>
+            <td>[à compléter]</td>
+            <td>[à compléter]</td>
+            <td>[à compléter]</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 6. Résultats -->
+    <section class="section section-alt" id="resultats">
+      <h2 class="section-title">6. Résultats &amp; performances</h2>
+      <p>
+        Présenter ici les benchmarks obtenus (temps d'exécution, qualité de la
+        solution) pour différentes tailles de problèmes.
+        Les tableaux, graphiques et analyses seront ajoutés ici.
+      </p>
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>Nb de villes</th>
+            <th>Temps (ms)</th>
+            <th>Coût obtenu</th>
+            <th>Coût optimal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>10</td>
+            <td>[—]</td>
+            <td>[—]</td>
+            <td>[—]</td>
+          </tr>
+          <tr>
+            <td>50</td>
+            <td>[—]</td>
+            <td>[—]</td>
+            <td>[—]</td>
+          </tr>
+          <tr>
+            <td>100</td>
+            <td>[—]</td>
+            <td>[—]</td>
+            <td>[—]</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>Projet TSP — Optimisation en C++ &copy; 2025</p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
