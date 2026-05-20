@@ -20,23 +20,67 @@ static const char *weight_type_name(int type) {
 }
 
 // Construit le chemin complet vers le fichier instance
-static void build_path(char *out, int out_size, const char *filename) {
-    std::strncpy(out, INSTANCES_DIR, out_size - 1);
+static void build_path(char *out, int out_size, const char *dir, const char *filename) {
+    std::strncpy(out, dir, out_size - 1);
     out[out_size - 1] = '\0';
     std::strncat(out, filename, out_size - 1 - static_cast<int>(std::strlen(out)));
+}
+
+// Tente d'ouvrir un fichier, retourne true s'il existe
+static bool file_exists(const char *path) {
+    std::FILE *f = std::fopen(path, "r");
+    if (f == nullptr)
+        return false;
+    std::fclose(f);
+    return true;
+}
+
+// Résout la recherche du chemin : d'abord racine, ensuite instances/
+static bool resolve_path(const char *filename, char *resolved, int resolved_size) {
+
+    // 1) Cherche dans le répertoire racine du projet
+    std::strncpy(resolved, filename, resolved_size - 1);
+    resolved[resolved_size - 1] = '\0';
+
+    if (file_exists(resolved)) {
+        std::printf("  Fichier trouvé à la racine : '%s'\n", resolved);
+        return true;
+    }
+
+    // 2) Cherche dans le répertoire instances/
+    build_path(resolved, resolved_size, INSTANCES_DIR, filename);
+
+    if (file_exists(resolved)) {
+        std::printf("  Fichier trouvé dans instances/ : '%s'\n", resolved);
+        return true;
+    }
+
+    // Aucun des deux emplacements ne contient le fichier
+    std::fprintf(stderr,
+        "  [ERREUR] Fichier '%s' introuvable.\n"
+        "           Cherché dans : './%s' et '%s%s'\n",
+        filename, filename, INSTANCES_DIR, filename);
+
+    return false;
 }
 
 // Charge, résout et affiche les résultats pour un fichier .tsp
 static bool test_file(const char *filename) {
 
     char path[512];
-    build_path(path, sizeof(path), filename);
 
-    TSPInstance inst;
     std::printf("Chargement de '%s' ...\n", filename);
 
+    // Résolution du chemin (racine puis instances/)
+    if (!resolve_path(filename, path, sizeof(path))) {
+        std::printf("  [ECHEC] Impossible de localiser '%s'.\n\n", filename);
+        return false;
+    }
+
+    TSPInstance inst;
+
     if (!tsp_load(path, &inst)) {
-        std::printf("  [ECHEC] Impossible de charger '%s'.\n\n", filename);
+        std::printf("  [ECHEC] Impossible de charger '%s'.\n\n", path);
         return false;
     }
 
@@ -48,7 +92,7 @@ static bool test_file(const char *filename) {
     std::printf("  Coords    : %s\n", inst.has_coords ? "oui" : "non");
     std::printf("\n");
 
-    int  n             = inst.n;
+    int  n              = inst.n;
     int *meilleurChemin = nullptr;
     int  meilleureDist  = -1;
 
@@ -117,7 +161,11 @@ int main(int argc, char *argv[]) {
             "Exemples :\n"
             "  %s bayg29.tsp\n"
             "  %s bayg29.tsp att48.tsp\n"
+<<<<<<< HEAD
             "\nLes fichiers sont recherchés dans le repertoire '%s'.\n",
+=======
+            "\nLes fichiers sont recherchés d'abord à la racine puis dans '%s'.\n",
+>>>>>>> 562a73edc2a54cc8443a71471722b6d2154cbf03
             argv[0], argv[0], argv[0], INSTANCES_DIR);
         return EXIT_FAILURE;
     }
