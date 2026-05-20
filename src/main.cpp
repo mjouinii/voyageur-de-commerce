@@ -161,11 +161,9 @@ int main(int argc, char *argv[]) {
             "Exemples :\n"
             "  %s bayg29.tsp\n"
             "  %s bayg29.tsp att48.tsp\n"
-<<<<<<< HEAD
-            "\nLes fichiers sont recherchés dans le repertoire '%s'.\n",
-=======
+
             "\nLes fichiers sont recherchés d'abord à la racine puis dans '%s'.\n",
->>>>>>> 562a73edc2a54cc8443a71471722b6d2154cbf03
+            
             argv[0], argv[0], argv[0], INSTANCES_DIR);
         return EXIT_FAILURE;
     }
