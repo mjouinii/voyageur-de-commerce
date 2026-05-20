@@ -57,7 +57,7 @@ int* nearestNeighbor(TSPInstance* inst, int villeDepart) {
             // On ignore les villes déjà visitées
             if (visite[j]) continue;
 
-            double dist = inst->dist[actuel][j];
+            int dist = inst->dist[actuel][j];
 
             // Si c'est la première ville non visitée
             // OU si elle est plus proche que la meilleure trouvée

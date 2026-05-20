@@ -100,7 +100,7 @@ Les fichiers `.tsp` doivent être dans le dossier `instances/`.
 
 ## 🛠 Stack Technique
 
-**C++** — compilé avec g++ (standard C++14)
+**C++** — compilé avec g++ (standard C++17)
 
 ## 🤝 Contributeurs
 
