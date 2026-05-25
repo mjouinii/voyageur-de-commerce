@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TSP Optimisé — Collaborateurs</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -33,34 +33,37 @@
   <!-- ===== CONTENU ===== -->
   <main class="container">
 
-    <section class="section">
+    <div class="section">
       <p>
-        Ce projet a été réalisé en binôme dans le cadre de
-        <strong>[Nom du cours / de l'UE]</strong>. Chaque membre a contribué
-        à la conception, au développement et à la rédaction du rapport.
+        Ce projet a été réalisé en binôme dans le cadre du cours
+        <strong>Algorithmique et Programmation C++</strong> dispensé en Licence Informatique
+        à l'Université d'Angers, année universitaire 2025 – 2026, groupe <strong>MI I 2B</strong>.
+        Chaque membre a contribué à la conception, au développement et à la documentation du projet.
       </p>
-    </section>
+    </div>
 
-    <!-- Fiches collaborateurs -->
-    <section class="section">
+    <div class="section">
       <div class="collab-grid">
 
         <!-- Collaborateur 1 -->
         <article class="collab-card">
           <div class="collab-avatar">
-            <span class="avatar-initials">AB</span>
+            <img src="photo/moslem_2.jpg" alt="Jouini Moslem"
+                 style="width:80px;height:80px;border-radius:50%;object-fit:cover;">
           </div>
           <div class="collab-info">
-            <h2 class="collab-name">[Prénom Nom]</h2>
-            <p class="collab-role">Étudiant(e) — [Formation]</p>
-            <hr class="collab-divider" />
-            <p><strong>Contact :</strong> <a href="mailto:email@exemple.com">email@exemple.com</a></p>
-            <p><strong>Numéro étudiant :</strong> [XXXXXXXX]</p>
+            <h2 class="collab-name">Jouini Moslem</h2>
+            <p class="collab-role">Étudiant — 1re année Licence Informatique</p>
+            <hr class="collab-divider">
+            <p><strong>Contact :</strong> <a href="mailto:moslem.jouini@etud.univ-angers.fr">moslem.jouini@etud.univ-angers.fr</a></p>
+            <p><strong>Numéro étudiant :</strong> 25011545</p>
+            <p><strong>GitHub :</strong> <a href="https://github.com/mjouinii" target="_blank">github.com/mjouinii</a></p>
             <h3 class="collab-contrib-title">Contributions au projet</h3>
             <ul class="collab-list">
-              <li>Implémentation de l'algorithme [à préciser]</li>
-              <li>Rédaction de la documentation</li>
-              <li>Tests et benchmarks</li>
+              <li>Intégration et adaptation des algorithmes (Nearest Neighbor, 2-opt)</li>
+              <li>Assemblage du programme principal (<code>main.cpp</code>)</li>
+              <li>Gestion du dépôt Git et coordination des versions</li>
+              <li>Réalisation du site web de présentation</li>
             </ul>
           </div>
         </article>
@@ -68,60 +71,87 @@
         <!-- Collaborateur 2 -->
         <article class="collab-card">
           <div class="collab-avatar">
-            <span class="avatar-initials">CD</span>
+            <img src="photo/alexis.png" alt="Kerboul Alexis"
+                 style="width:80px;height:80px;border-radius:50%;object-fit:cover;">
           </div>
           <div class="collab-info">
-            <h2 class="collab-name">[Prénom Nom]</h2>
-            <p class="collab-role">Étudiant(e) — [Formation]</p>
-            <hr class="collab-divider" />
-            <p><strong>Contact :</strong> <a href="mailto:email@exemple.com">email@exemple.com</a></p>
-            <p><strong>Numéro étudiant :</strong> [XXXXXXXX]</p>
+            <h2 class="collab-name">Kerboul Alexis</h2>
+            <p class="collab-role">Étudiant — 1re année Licence Informatique</p>
+            <hr class="collab-divider">
+            <p><strong>Contact :</strong> <a href="mailto:alexis.kerboul@etud.univ-angers.fr">alexis.kerboul@etud.univ-angers.fr</a></p>
+            <p><strong>Numéro étudiant :</strong> 25009943</p>
+            <p><strong>GitHub :</strong> <a href="https://github.com/Pigelin" target="_blank">github.com/Pigelin</a></p>
             <h3 class="collab-contrib-title">Contributions au projet</h3>
             <ul class="collab-list">
-              <li>Conception de la structure de données</li>
-              <li>Optimisation du code C++</li>
-              <li>Analyse et visualisation des résultats</li>
+              <li>Conception de l'architecture du projet (parseur TSPLIB, structures de données)</li>
+              <li>Implémentation du parseur (<code>TSPParser</code>, <code>CoordDistanceCalc</code>, <code>ExplicitMatrixReader</code>)</li>
+              <li>Développement du visualiseur graphique SFML</li>
+              <li>Calcul MDS pour la reconstruction des coordonnées</li>
             </ul>
           </div>
         </article>
 
       </div>
-    </section>
+    </div>
 
-    <!-- Répartition des tâches -->
     <section class="section section-alt">
       <h2 class="section-title">Répartition des tâches</h2>
       <table class="info-table">
         <thead>
           <tr>
             <th>Tâche</th>
-            <th>[Prénom 1]</th>
-            <th>[Prénom 2]</th>
+            <th>Moslem</th>
+            <th>Alexis</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Recherche bibliographique</td>
-            <td class="center">&#10003;</td>
-            <td class="center">&#10003;</td>
-          </tr>
-          <tr>
-            <td>Algorithme force brute</td>
-            <td class="center">&#10003;</td>
-            <td class="center"></td>
-          </tr>
-          <tr>
-            <td>Heuristique [à préciser]</td>
+            <td>Architecture du projet</td>
             <td class="center"></td>
             <td class="center">&#10003;</td>
           </tr>
           <tr>
-            <td>Tests unitaires</td>
+            <td>Parseur TSPLIB (<code>TSPParser</code>)</td>
+            <td class="center"></td>
+            <td class="center">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Lecture matrice UPPER_ROW</td>
+            <td class="center"></td>
+            <td class="center">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Calcul des distances ATT / EUC_2D</td>
+            <td class="center"></td>
+            <td class="center">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Algorithme Nearest Neighbor</td>
+            <td class="center">&#10003;</td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td>Algorithme 2-opt</td>
+            <td class="center">&#10003;</td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td>Programme principal (<code>main.cpp</code>)</td>
+            <td class="center">&#10003;</td>
+            <td class="center"></td>
+          </tr>
+          <tr>
+            <td>Visualiseur graphique SFML</td>
             <td class="center">&#10003;</td>
             <td class="center">&#10003;</td>
           </tr>
           <tr>
-            <td>Rapport / Site web</td>
+            <td>Makefile / CMakeLists.txt</td>
+            <td class="center">&#10003;</td>
+            <td class="center">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Site web de présentation</td>
             <td class="center">&#10003;</td>
             <td class="center">&#10003;</td>
           </tr>
@@ -129,11 +159,24 @@
       </table>
     </section>
 
+    <section class="section">
+      <h2 class="section-title">Dépôt du projet</h2>
+      <p>
+        Le code source complet est disponible sur GitHub :
+        <a href="https://github.com/mjouinii/voyageur-de-commerce" target="_blank">
+          github.com/mjouinii/voyageur-de-commerce
+        </a>
+      </p>
+      <p>
+        Le projet est compilable sur Windows (MinGW + SFML) et Linux (g++ + libsfml-dev)
+        en utilisant le <code class="inline-code">Makefile</code> fourni.
+      </p>
+    </section>
+
   </main>
 
-  <!-- ===== FOOTER ===== -->
   <footer class="footer">
-    <p>Projet TSP — Optimisation en C++ &copy; 2025</p>
+    <p>Projet TSP — Optimisation en C++ &copy; 2026 — Jouini Moslem &amp; Alexis Kerboul</p>
   </footer>
 
   <script>

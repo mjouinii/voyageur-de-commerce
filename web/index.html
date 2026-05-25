@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TSP Optimisé — Accueil</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -12,7 +12,7 @@
   <nav class="navbar">
     <div class="nav-brand">
       <span class="nav-logo">TSP</span>
-      <span class="nav-subtitle">C++ Optimization</span>
+      <span class="nav-subtitle">C++ Optimisation</span>
     </div>
     <ul class="nav-links">
       <li><a href="index.html" class="nav-link active">Accueil</a></li>
@@ -24,96 +24,150 @@
 
   <!-- ===== HERO ===== -->
   <header class="hero">
-    <div class="hero-content">
-      <p class="hero-tag">Projet de programmation — C++</p>
-      <h1 class="hero-title">Le Problème du<br>Voyageur de Commerce</h1>
-      <p class="hero-desc">
-        Étude et implémentation d'algorithmes d'optimisation en C++ pour résoudre
-        le <em>Travelling Salesman Problem</em> (TSP), un problème classique
-        de combinatoire et de recherche opérationnelle.
-      </p>
-      <div class="hero-actions">
-        <a href="algorithme.html" class="btn btn-primary">Voir l'algorithme</a>
-        <a href="collaborateurs.html" class="btn btn-outline">L'équipe</a>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <p class="hero-tag">Projet de programmation — C++</p>
+        <h1 class="hero-title">Le Problème du<br>Voyageur de Commerce</h1>
+        <p class="hero-desc">
+          Étude et implémentation d'algorithmes d'optimisation en C++ pour résoudre
+          le <em>Travelling Salesman Problem</em> (TSP), un problème classique
+          de combinatoire et de recherche opérationnelle.
+        </p>
+        <div class="hero-actions">
+          <a href="algorithme.html" class="btn btn-primary">Voir l'algorithme</a>
+          <a href="collaborateurs.html" class="btn btn-outline">L'équipe</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="photo/bayg29.png" alt="Visualisation du chemin TSP - bayg29">
       </div>
     </div>
   </header>
 
-  <!-- ===== PRÉSENTATION ===== -->
+  <!-- ===== CONTENU ===== -->
   <main class="container">
 
     <section class="section">
       <h2 class="section-title">Présentation du projet</h2>
       <p>
-        Ce projet a pour objectif d'explorer différentes stratégies algorithmiques
-        permettant de résoudre ou d'approximer la solution optimale au problème
-        du voyageur de commerce. Il s'inscrit dans le cadre du cours
-        <strong>[Nom du cours]</strong>, dispensé en <strong>[Année / Semestre]</strong>.
+        Ce projet a pour objectif d'explorer des stratégies algorithmiques permettant
+        d'approximer la solution optimale au problème du voyageur de commerce. Il s'inscrit
+        dans le cadre du cours <strong>Algorithmique et Programmation C++</strong>,
+        dispensé en <strong>2025 – 2026</strong>.
       </p>
       <p>
         Le TSP consiste à trouver le chemin le plus court permettant à un voyageur
         de visiter un ensemble de villes exactement une fois avant de revenir à son
-        point de départ. Ce problème est NP-difficile, ce qui en fait un sujet
-        d'étude particulièrement riche pour l'analyse de la complexité algorithmique.
+        point de départ. Ce problème est NP-difficile : aucun algorithme connu ne peut
+        le résoudre de manière exacte en temps polynomial, ce qui en fait un sujet
+        central de l'optimisation combinatoire.
+      </p>
+      <p>
+        Notre implémentation repose sur deux algorithmes combinés : une heuristique
+        gloutonne <strong>Nearest Neighbor</strong> pour construire rapidement un chemin
+        initial, suivie d'une amélioration locale <strong>2-opt</strong> pour raccourcir
+        ce chemin en supprimant les croisements.
       </p>
     </section>
 
-    <!-- Cartes thématiques -->
     <section class="section">
       <h2 class="section-title">Points abordés</h2>
       <div class="card-grid">
-
         <div class="card">
           <div class="card-icon">&#128269;</div>
           <h3>Définition du problème</h3>
-          <p>Formalisation mathématique du TSP, notation et complexité théorique.</p>
+          <p>Formalisation mathématique du TSP, cycle hamiltonien de coût minimal sur un graphe complet pondéré.</p>
         </div>
-
         <div class="card">
           <div class="card-icon">&#9881;</div>
-          <h3>Algorithmes étudiés</h3>
-          <p>Approche par force brute, heuristiques gloutonnes et métaheuristiques.</p>
+          <h3>Algorithmes implémentés</h3>
+          <p>Heuristique Nearest Neighbor lancée depuis chaque ville, améliorée par l'optimisation locale 2-opt.</p>
         </div>
-
         <div class="card">
           <div class="card-icon">&#128187;</div>
           <h3>Implémentation C++</h3>
-          <p>Code structuré, optimisé et commenté, compilé avec les standards modernes.</p>
+          <p>Code structuré en modules séparés (parseur, algorithmes, visualiseur), compilé avec g++ C++17.</p>
         </div>
-
         <div class="card">
           <div class="card-icon">&#128202;</div>
-          <h3>Analyse des résultats</h3>
-          <p>Comparaison des performances, benchmarks et visualisation des solutions.</p>
+          <h3>Visualisation SFML</h3>
+          <p>Affichage graphique du chemin optimal avec les villes, les arêtes numérotées et la distance totale.</p>
         </div>
-
       </div>
     </section>
 
-    <!-- Contexte académique -->
+    <section class="section">
+      <h2 class="section-title">Instances testées</h2>
+      <p>
+        Le programme a été testé sur quatre instances issues de la bibliothèque de référence
+        <strong>TSPLIB</strong>, couvrant deux formats de fichiers différents.
+      </p>
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>Fichier</th>
+            <th>Nb de villes</th>
+            <th>Format</th>
+            <th>Optimal connu</th>
+            <th>Notre résultat</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>gr24.tsp</td>
+            <td>24</td>
+            <td>EXPLICIT UPPER_ROW</td>
+            <td>1272</td>
+            <td>1384 (+8,8 %)</td>
+          </tr>
+          <tr>
+            <td>bayg29.tsp</td>
+            <td>29</td>
+            <td>EXPLICIT UPPER_ROW</td>
+            <td>1610</td>
+            <td>1684 (+4,6 %)</td>
+          </tr>
+          <tr>
+            <td>att48.tsp</td>
+            <td>48</td>
+            <td>ATT (coordonnées)</td>
+            <td>10 628</td>
+            <td>11 196 (+5,3 %)</td>
+          </tr>
+          <tr>
+            <td>ch150.tsp</td>
+            <td>150</td>
+            <td>ATT (coordonnées)</td>
+            <td>2100</td>
+            <td>2188 (+4,1 %)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
     <section class="section section-alt">
       <h2 class="section-title">Contexte académique</h2>
       <table class="info-table">
         <tbody>
           <tr>
             <th>Établissement</th>
-            <td>[Nom de l'établissement]</td>
+            <td>Université d'Angers</td>
           </tr>
           <tr>
             <th>Formation</th>
-            <td>[Nom de la formation]</td>
+            <td>Licence Informatique</td>
           </tr>
           <tr>
             <th>Cours</th>
-            <td>[Intitulé du cours]</td>
+            <td>Concrétisation</td>
           </tr>
           <tr>
             <th>Encadrant</th>
-            <td>[Nom du professeur / encadrant]</td>
+            <td>Marc Legeay</td>
           </tr>
           <tr>
             <th>Année universitaire</th>
-            <td>[20XX – 20XX]</td>
+            <td>2025 – 2026</td>
           </tr>
         </tbody>
       </table>
@@ -121,9 +175,8 @@
 
   </main>
 
-  <!-- ===== FOOTER ===== -->
   <footer class="footer">
-    <p>Projet TSP — Optimisation en C++ &copy; 2025</p>
+    <p>Projet TSP — Optimisation en C++ &copy; 2026 — Jouini Moslem &amp; Alexis Kerboul</p>
   </footer>
 
   <script>

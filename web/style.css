@@ -10,7 +10,7 @@
   --color-border:      #d6d3cc;
   --color-text:        #1a1a1a;
   --color-text-muted:  #5a5a5a;
-  --color-accent:      #1a3a5c;      /* bleu marine académique */
+  --color-accent:      #1a3a5c;
   --color-accent-light:#e8eef5;
   --color-code-bg:     #1e2430;
   --color-code-text:   #cdd6f4;
@@ -183,13 +183,33 @@ strong { font-weight: 700; }
 .hero {
   background-color: var(--color-accent);
   color: #ffffff;
-  padding: 4rem 1.5rem 3.5rem;
-  text-align: left;
+  padding: 4rem 2rem 3.5rem;
+}
+
+.hero-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
 }
 
 .hero-content {
-  max-width: 900px;
-  margin: 0 auto;
+  flex: 1;
+}
+
+.hero-image {
+  flex-shrink: 0;
+  width: 450px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.hero-image img {
+  width: 100%;
+  display: block;
 }
 
 .hero-tag {
@@ -213,7 +233,7 @@ strong { font-weight: 700; }
 .hero-desc {
   font-size: 1rem;
   color: rgba(255,255,255,0.82);
-  max-width: 600px;
+  max-width: 500px;
   margin-bottom: 2rem;
 }
 
@@ -375,6 +395,7 @@ strong { font-weight: 700; }
   justify-content: center;
   margin-bottom: 1.25rem;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .avatar-initials {
@@ -510,6 +531,14 @@ strong { font-weight: 700; }
 
   .hero {
     padding: 2.5rem 1.5rem 2rem;
+  }
+
+  .hero-inner {
+    flex-direction: column;
+  }
+
+  .hero-image {
+    width: 100%;
   }
 
   .section-alt {
