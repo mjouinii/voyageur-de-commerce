@@ -1,185 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TSP Optimisé — Algorithme</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    /* ── Architecture interactive ── */
-    .arch-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 1rem;
-      margin-top: 1.25rem;
-    }
-    .arch-file {
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 1rem 0.75rem 0.85rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      user-select: none;
-    }
-    .arch-file:hover {
-      border-color: var(--color-accent);
-      box-shadow: 0 2px 8px rgba(26,58,92,0.12);
-    }
-    .arch-file.active {
-      border-color: var(--color-accent);
-      background-color: var(--color-accent-light);
-    }
-    .arch-file-icon {
-      font-size: 2rem;
-      margin-bottom: 0.4rem;
-      display: block;
-    }
-    .arch-file-name {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--color-accent);
-      word-break: break-all;
-    }
-    .arch-file-type {
-      font-family: var(--font-ui);
-      font-size: 0.68rem;
-      color: var(--color-text-muted);
-      margin-top: 0.2rem;
-    }
-    .arch-detail {
-      display: none;
-      background: var(--color-surface);
-      border: 1px solid var(--color-accent);
-      border-radius: var(--radius);
-      padding: 1.4rem 1.6rem;
-      margin-top: 1rem;
-    }
-    .arch-detail.visible {
-      display: block;
-    }
-    .arch-detail h3 {
-      margin-bottom: 0.6rem;
-      font-size: 1rem;
-    }
-    .arch-detail p {
-      font-family: var(--font-ui);
-      font-size: 0.88rem;
-      color: var(--color-text-muted);
-      margin-bottom: 0.6rem;
-    }
-    .arch-detail p:last-child { margin-bottom: 0; }
-    .arch-detail .role-tag {
-      display: inline-block;
-      background: var(--color-accent);
-      color: #fff;
-      font-family: var(--font-ui);
-      font-size: 0.7rem;
-      padding: 0.15em 0.55em;
-      border-radius: 2px;
-      margin-bottom: 0.65rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .arch-hint {
-      font-family: var(--font-ui);
-      font-size: 0.82rem;
-      color: var(--color-text-muted);
-      margin-bottom: 0;
-      font-style: italic;
-    }
-
-    /* ── Blocs algo ── */
-    .algo-step {
-      display: flex;
-      gap: 1.25rem;
-      align-items: flex-start;
-      margin-bottom: 1.5rem;
-    }
-    .algo-step-num {
-      flex-shrink: 0;
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
-      background: var(--color-accent);
-      color: #fff;
-      font-family: var(--font-ui);
-      font-size: 0.9rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 0.1rem;
-    }
-    .algo-step-body h4 {
-      font-size: 0.95rem;
-      margin-bottom: 0.3rem;
-    }
-    .algo-step-body p {
-      font-family: var(--font-ui);
-      font-size: 0.875rem;
-      color: var(--color-text-muted);
-      margin-bottom: 0;
-    }
-
-    /* ── Images résultat ── */
-    .result-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-      margin-top: 1rem;
-    }
-    @media (max-width: 640px) {
-      .result-grid { grid-template-columns: 1fr; }
-      .arch-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    .result-img-wrap {
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: #111;
-    }
-    .result-img-wrap img {
-      width: 100%;
-      display: block;
-    }
-    .result-img-caption {
-      font-family: var(--font-ui);
-      font-size: 0.78rem;
-      color: var(--color-text-muted);
-      padding: 0.5rem 0.75rem;
-      background: var(--color-surface);
-      border-top: 1px solid var(--color-border);
-      text-align: center;
-    }
-
-    /* ── Pipeline pipeline ── */
-    .pipeline {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin: 1rem 0;
-    }
-    .pipe-step {
-      background: var(--color-accent-light);
-      border: 1px solid var(--color-accent);
-      border-radius: var(--radius);
-      padding: 0.4rem 0.9rem;
-      font-family: var(--font-ui);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--color-accent);
-      white-space: nowrap;
-    }
-    .pipe-arrow {
-      color: var(--color-accent);
-      font-size: 1rem;
-      font-weight: 700;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -187,7 +12,7 @@
   <nav class="navbar">
     <div class="nav-brand">
       <span class="nav-logo">TSP</span>
-      <span class="nav-subtitle">C++ Optimization</span>
+      <span class="nav-subtitle">C++ Optimisation</span>
     </div>
     <ul class="nav-links">
       <li><a href="index.html" class="nav-link">Accueil</a></li>
@@ -197,7 +22,7 @@
     <button class="nav-toggle" aria-label="Menu" onclick="toggleMenu()">&#9776;</button>
   </nav>
 
-  <!-- ===== EN-TÊTE ===== -->
+  <!-- ===== EN-TÊTE DE PAGE ===== -->
   <header class="page-header">
     <div class="container">
       <h1 class="page-title">Algorithme &amp; Code</h1>
@@ -310,7 +135,7 @@
         <em>i</em> et la ville <em>j</em>. On cherche une permutation
         <em>&sigma;</em> de <em>V</em> minimisant :
       </p>
-      <pre class="code-block" style="font-size:0.9rem; padding:1rem 1.5rem;">Coût(&sigma;) = w(&sigma;(n), &sigma;(1))  +  &sum; w(&sigma;(i), &sigma;(i+1))  pour i = 1 .. n-1</pre>
+      <pre class="code-block code-block-formula">Coût(&sigma;) = w(&sigma;(n), &sigma;(1))  +  &sum; w(&sigma;(i), &sigma;(i+1))  pour i = 1 .. n-1</pre>
       <p>
         Le TSP est un problème <strong>NP-difficile</strong> : le nombre de
         solutions possibles croît en <code class="inline-code">(n-1)! / 2</code>.
@@ -414,8 +239,8 @@ struct TSPInstance {
         La phase <strong>Nearest Neighbor</strong> est lancée depuis
         <strong>chaque ville</strong> comme point de départ (soit <em>n</em>
         exécutions). On ne conserve que le meilleur chemin, qui est ensuite
-        amélioré par 2-opt. Cette approche multi-départ améliore significativement
-        la qualité de la solution initiale avant optimisation locale.
+        amélioré par 2-opt. Cette approche multi-départ améliore
+        significativement la qualité de la solution initiale avant optimisation locale.
       </p>
     </section>
 
@@ -431,7 +256,7 @@ struct TSPInstance {
         construction utilisée dans ce projet.
       </p>
 
-      <h3 style="margin: 1.25rem 0 0.75rem;">Principe en 4 étapes</h3>
+      <h3 class="subsection-title">Principe en 4 étapes</h3>
       <div class="algo-step">
         <div class="algo-step-num">1</div>
         <div class="algo-step-body">
@@ -461,7 +286,7 @@ struct TSPInstance {
         </div>
       </div>
 
-      <h3 style="margin: 1.25rem 0 0.75rem;">Code — <code class="inline-code">AlgoNearestNeighbor.cpp</code></h3>
+      <h3 class="subsection-title">Code — <code class="inline-code">AlgoNearestNeighbor.cpp</code></h3>
       <pre class="code-block"><code>int* nearestNeighbor(TSPInstance* inst, int villeDepart) {
 
     int n = inst->n;
@@ -515,7 +340,7 @@ struct TSPInstance {
         Neighbor pour affiner la solution.
       </p>
 
-      <h3 style="margin: 1.25rem 0 0.75rem;">Principe</h3>
+      <h3 class="subsection-title">Principe</h3>
       <p>
         Pour chaque paire d'arêtes <code class="inline-code">(A→B)</code> et
         <code class="inline-code">(C→D)</code> du chemin, on teste si les
@@ -525,13 +350,11 @@ struct TSPInstance {
         recommence depuis le début. On s'arrête quand aucune amélioration
         n'est plus possible.
       </p>
-      <p>
-        La condition d'amélioration est simplement :
-      </p>
-      <pre class="code-block" style="padding:0.9rem 1.5rem; font-size:0.88rem;"><code>dist[A][B] + dist[C][D]  &gt;  dist[A][C] + dist[B][D]
+      <p>La condition d'amélioration est simplement :</p>
+      <pre class="code-block code-block-sm"><code>dist[A][B] + dist[C][D]  &gt;  dist[A][C] + dist[B][D]
              ↓ si vrai : inverser le segment [B .. C]</code></pre>
 
-      <h3 style="margin: 1.25rem 0 0.75rem;">Code — <code class="inline-code">Algo2OPT.cpp</code></h3>
+      <h3 class="subsection-title">Code — <code class="inline-code">Algo2OPT.cpp</code></h3>
       <pre class="code-block"><code>void twoOpt(TSPInstance* inst, int* chemin, int taille) {
 
     int n = taille - 1;     // nombre de villes (sans le retour)
@@ -560,7 +383,7 @@ struct TSPInstance {
 }</code></pre>
       <p>
         La fonction auxiliaire <code class="inline-code">inverserSegment</code>
-        inverse simplement les indices du tableau entre les positions
+        inverse les indices du tableau entre les positions
         <code class="inline-code">gauche</code> et <code class="inline-code">droit</code>
         par des échanges successifs, en <code class="inline-code">O(n)</code>.
       </p>
@@ -571,7 +394,6 @@ struct TSPInstance {
     ══════════════════════════════════════════════ -->
     <section class="section" id="complexite">
       <h2 class="section-title">7. Analyse de la complexité</h2>
-
       <table class="info-table">
         <thead>
           <tr>
@@ -614,8 +436,7 @@ struct TSPInstance {
           </tr>
         </tbody>
       </table>
-
-      <p style="margin-top:1rem; font-family: var(--font-ui); font-size:0.88rem; color:var(--color-text-muted);">
+      <p class="note">
         <em>k</em> désigne le nombre de passes 2-opt jusqu'à convergence.
         La matrice de distances alloue <code class="inline-code">n × n</code> entiers en mémoire,
         soit pour att48 : 48 × 48 × 4 octets = ~9 Ko — négligeable.
@@ -634,7 +455,7 @@ struct TSPInstance {
         est la métrique <code class="inline-code">ATT</code> (pseudo-euclidienne).
       </p>
 
-      <h3 style="margin: 1.25rem 0 0.75rem;">Sortie console</h3>
+      <h3 class="subsection-title">Sortie console</h3>
       <pre class="code-block"><code>==========================================
   Solveur TSP - Nearest Neighbor + 2-opt
 ==========================================
@@ -663,26 +484,25 @@ Chargement de 'att48.tsp' ...
   Bilan : 1 succes, 0 echec(s)
 ==========================================</code></pre>
 
-      <h3 style="margin: 1.5rem 0 0.75rem;">Visualisation SFML</h3>
+      <h3 class="subsection-title">Visualisation SFML</h3>
       <p>
         La fenêtre graphique est générée par SFML via le module
         <code class="inline-code">Visualizer.cpp</code>. Les villes sont
         représentées par des points rouges, les arêtes du tour en bleu,
         et les numéros d'étape en jaune.
       </p>
-
       <div class="result-grid">
         <div class="result-img-wrap">
-          <img src="resultat_att48_tsp.png" alt="Visualisation du tour att48 — résultat 1" />
+          <img src="resultat_att48_tsp.png" alt="Visualisation du tour att48 — résultat 1">
           <div class="result-img-caption">Tour final — Distance : 11196</div>
         </div>
         <div class="result-img-wrap">
-          <img src="Résultat2_att48_tsp.png" alt="Visualisation du tour att48 — résultat 2" />
+          <img src="Résultat2_att48_tsp.png" alt="Visualisation du tour att48 — résultat 2">
           <div class="result-img-caption">Vue alternative — instance att48</div>
         </div>
       </div>
 
-      <h3 style="margin: 1.5rem 0 0.75rem;">Bilan chiffré</h3>
+      <h3 class="subsection-title">Bilan chiffré</h3>
       <table class="info-table">
         <thead>
           <tr>
@@ -709,7 +529,7 @@ Chargement de 'att48.tsp' ...
           </tr>
         </tbody>
       </table>
-      <p style="margin-top:0.9rem; font-family:var(--font-ui); font-size:0.85rem; color:var(--color-text-muted);">
+      <p class="note">
         La solution obtenue est à environ <strong>5,3 %</strong> au-dessus de
         l'optimum connu, ce qui est un résultat satisfaisant pour une approche
         heuristique simple sans exploration exhaustive.
@@ -720,7 +540,7 @@ Chargement de 'att48.tsp' ...
 
   <!-- ===== FOOTER ===== -->
   <footer class="footer">
-    <p>Projet TSP — Optimisation en C++ &copy; 2025</p>
+    <p>Projet TSP — Optimisation en C++ &copy; 2026 — Jouini Moslem &amp; Alexis Kerboul</p>
   </footer>
 
   <script>
@@ -728,7 +548,6 @@ Chargement de 'att48.tsp' ...
       document.querySelector('.nav-links').classList.toggle('open');
     }
 
-    // ── Données des fichiers ──────────────────────────────────────────────────
     const fileData = {
       main: {
         name: 'main.cpp',
@@ -786,10 +605,8 @@ Chargement de 'att48.tsp' ...
       const detail = document.getElementById('arch-detail');
       const allFiles = document.querySelectorAll('.arch-file');
 
-      // Désactiver tous les fichiers
       allFiles.forEach(f => f.classList.remove('active'));
 
-      // Si on re-clique sur le même fichier → fermer
       if (currentId === id) {
         detail.innerHTML = '';
         detail.classList.remove('visible');
@@ -797,7 +614,6 @@ Chargement de 'att48.tsp' ...
         return;
       }
 
-      // Activer le fichier cliqué
       const clicked = document.querySelector(`[onclick="showDetail('${id}')"]`);
       if (clicked) clicked.classList.add('active');
 
@@ -811,7 +627,6 @@ Chargement de 'att48.tsp' ...
       detail.classList.add('visible');
       currentId = id;
 
-      // Scroll doux vers le panneau
       setTimeout(() => detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
     }
   </script>

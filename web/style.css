@@ -280,7 +280,7 @@ strong { font-weight: 700; }
 .page-header {
   background-color: var(--color-accent);
   color: #ffffff;
-  padding: 2.5rem 1.5rem;
+  padding: 2.5rem 0;
 }
 
 .page-title {
@@ -495,6 +495,225 @@ strong { font-weight: 700; }
   border: 1px solid var(--color-border);
 }
 
+/* ── Variantes de blocs de code ──────────────────────────── */
+.code-block-formula {
+  font-size: 0.9rem;
+  padding: 1rem 1.5rem;
+}
+
+.code-block-sm {
+  font-size: 0.88rem;
+  padding: 0.9rem 1.5rem;
+}
+
+/* ── Sous-titre de section (h3 entre blocs) ──────────────── */
+.subsection-title {
+  margin: 1.25rem 0 0.75rem;
+}
+
+/* ── Paragraphe de note / remarque ───────────────────────── */
+.note {
+  margin-top: 1rem;
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Grille des fichiers du projet ───────────────────────── */
+.arch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.arch-file {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 0.75rem 0.85rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+
+.arch-file:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 8px rgba(26, 58, 92, 0.12);
+}
+
+.arch-file.active {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent-light);
+}
+
+.arch-file-icon {
+  font-size: 2rem;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.arch-file-name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  word-break: break-all;
+}
+
+.arch-file-type {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── Panneau de détail du fichier ────────────────────────── */
+.arch-detail {
+  display: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  padding: 1.4rem 1.6rem;
+  margin-top: 1rem;
+}
+
+.arch-detail.visible {
+  display: block;
+}
+
+.arch-detail h3 {
+  margin-bottom: 0.6rem;
+  font-size: 1rem;
+}
+
+.arch-detail p {
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.arch-detail p:last-child {
+  margin-bottom: 0;
+}
+
+.arch-detail .role-tag {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  padding: 0.15em 0.55em;
+  border-radius: 2px;
+  margin-bottom: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Texte d'aide architecture ───────────────────────────── */
+.arch-hint {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+/* ── Étapes numérotées de l'algorithme ───────────────────── */
+.algo-step {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.algo-step-num {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.1rem;
+}
+
+.algo-step-body h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+
+.algo-step-body p {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0;
+}
+
+/* ── Grille d'images de résultats ────────────────────────── */
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.result-img-wrap {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #111;
+}
+
+.result-img-wrap img {
+  width: 100%;
+  display: block;
+}
+
+.result-img-caption {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+/* ── Pipeline d'exécution ────────────────────────────────── */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+
+.pipe-step {
+  background: var(--color-accent-light);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.pipe-arrow {
+  color: var(--color-accent);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
 /* ── Footer ──────────────────────────────────────────────── */
 .footer {
   background-color: var(--color-accent);
@@ -548,5 +767,13 @@ strong { font-weight: 700; }
 
   .collab-card {
     padding: 1.5rem;
+  }
+
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
