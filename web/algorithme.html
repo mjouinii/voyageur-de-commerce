@@ -5,6 +5,181 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TSP Optimisé — Algorithme</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Architecture interactive ── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .arch-file {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1rem 0.75rem 0.85rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      user-select: none;
+    }
+    .arch-file:hover {
+      border-color: var(--color-accent);
+      box-shadow: 0 2px 8px rgba(26,58,92,0.12);
+    }
+    .arch-file.active {
+      border-color: var(--color-accent);
+      background-color: var(--color-accent-light);
+    }
+    .arch-file-icon {
+      font-size: 2rem;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .arch-file-name {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      word-break: break-all;
+    }
+    .arch-file-type {
+      font-family: var(--font-ui);
+      font-size: 0.68rem;
+      color: var(--color-text-muted);
+      margin-top: 0.2rem;
+    }
+    .arch-detail {
+      display: none;
+      background: var(--color-surface);
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.6rem;
+      margin-top: 1rem;
+    }
+    .arch-detail.visible {
+      display: block;
+    }
+    .arch-detail h3 {
+      margin-bottom: 0.6rem;
+      font-size: 1rem;
+    }
+    .arch-detail p {
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      color: var(--color-text-muted);
+      margin-bottom: 0.6rem;
+    }
+    .arch-detail p:last-child { margin-bottom: 0; }
+    .arch-detail .role-tag {
+      display: inline-block;
+      background: var(--color-accent);
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      padding: 0.15em 0.55em;
+      border-radius: 2px;
+      margin-bottom: 0.65rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .arch-hint {
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      color: var(--color-text-muted);
+      margin-bottom: 0;
+      font-style: italic;
+    }
+
+    /* ── Blocs algo ── */
+    .algo-step {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+    .algo-step-num {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--color-accent);
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.1rem;
+    }
+    .algo-step-body h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+    }
+    .algo-step-body p {
+      font-family: var(--font-ui);
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+      margin-bottom: 0;
+    }
+
+    /* ── Images résultat ── */
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 640px) {
+      .result-grid { grid-template-columns: 1fr; }
+      .arch-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .result-img-wrap {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #111;
+    }
+    .result-img-wrap img {
+      width: 100%;
+      display: block;
+    }
+    .result-img-caption {
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      padding: 0.5rem 0.75rem;
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+    }
+
+    /* ── Pipeline pipeline ── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+    .pipe-step {
+      background: var(--color-accent-light);
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius);
+      padding: 0.4rem 0.9rem;
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-accent);
+      white-space: nowrap;
+    }
+    .pipe-arrow {
+      color: var(--color-accent);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+  </style>
 </head>
 <body>
 
@@ -12,7 +187,7 @@
   <nav class="navbar">
     <div class="nav-brand">
       <span class="nav-logo">TSP</span>
-      <span class="nav-subtitle">C++ Optimisation</span>
+      <span class="nav-subtitle">C++ Optimization</span>
     </div>
     <ul class="nav-links">
       <li><a href="index.html" class="nav-link">Accueil</a></li>
@@ -22,147 +197,388 @@
     <button class="nav-toggle" aria-label="Menu" onclick="toggleMenu()">&#9776;</button>
   </nav>
 
-  <!-- ===== EN-TÊTE DE PAGE ===== -->
+  <!-- ===== EN-TÊTE ===== -->
   <header class="page-header">
     <div class="container">
       <h1 class="page-title">Algorithme &amp; Code</h1>
-      <p class="page-subtitle">Détail de l'implémentation C++ du TSP</p>
+      <p class="page-subtitle">Nearest Neighbor + 2-opt — Implémentation C++ du TSP</p>
     </div>
   </header>
 
   <!-- ===== CONTENU ===== -->
   <main class="container">
 
-    <!-- Sommaire -->
+    <!-- SOMMAIRE -->
     <section class="section">
       <h2 class="section-title">Sommaire</h2>
       <ol class="toc-list">
+        <li><a href="#architecture">Architecture du projet</a></li>
         <li><a href="#probleme">Rappel du problème</a></li>
-        <li><a href="#approches">Approches algorithmiques</a></li>
         <li><a href="#structures">Structures de données</a></li>
-        <li><a href="#implementation">Implémentation principale</a></li>
+        <li><a href="#pipeline">Pipeline d'exécution</a></li>
+        <li><a href="#nn">Algorithme Nearest Neighbor</a></li>
+        <li><a href="#twoopt">Optimisation 2-opt</a></li>
         <li><a href="#complexite">Analyse de la complexité</a></li>
-        <li><a href="#resultats">Résultats &amp; performances</a></li>
+        <li><a href="#resultats">Résultats — instance att48</a></li>
       </ol>
     </section>
 
-    <!-- 1. Rappel du problème -->
-    <section class="section" id="probleme">
-      <h2 class="section-title">1. Rappel du problème</h2>
+    <!-- ══════════════════════════════════════════════
+         1. ARCHITECTURE DU PROJET
+    ══════════════════════════════════════════════ -->
+    <section class="section" id="architecture">
+      <h2 class="section-title">1. Architecture du projet</h2>
       <p>
-        Soit un graphe complet <em>G = (V, E)</em> où <em>V</em> est l'ensemble
-        des villes et <em>E</em> l'ensemble des arêtes pondérées par une distance.
-        L'objectif est de trouver un cycle hamiltonien de coût minimal, c'est-à-dire
-        un chemin passant par chaque sommet exactement une fois et revenant au départ
-        avec une distance totale minimale.
+        Le projet est organisé selon une séparation claire entre les en-têtes
+        (<code class="inline-code">include/</code>) et les implémentations
+        (<code class="inline-code">src/</code>). Cliquez sur un fichier pour
+        afficher sa description.
       </p>
-      <p>
-        Formellement : minimiser
-        <code class="inline-code">∑ d(v<sub>i</sub>, v<sub>i+1</sub>)</code>
-        pour toute permutation des villes.
-      </p>
-    </section>
+      <p class="arch-hint">&#128161; Cliquez sur un fichier ci-dessous pour afficher son rôle.</p>
 
-    <!-- 2. Approches -->
-    <section class="section section-alt" id="approches">
-      <h2 class="section-title">2. Approches algorithmiques</h2>
-      <div class="card-grid">
-        <div class="card">
-          <h3>Force brute</h3>
-          <p>
-            Évaluation exhaustive de toutes les permutations. Garantit l'optimalité
-            mais sa complexité <code class="inline-code">O(n!)</code> la rend
-            impraticable au-delà d'une quinzaine de villes.
-          </p>
+      <div class="arch-grid" id="arch-grid">
+
+        <div class="arch-file" onclick="showDetail('main')">
+          <span class="arch-file-icon">&#9654;</span>
+          <div class="arch-file-name">main.cpp</div>
+          <div class="arch-file-type">Point d'entrée</div>
         </div>
-        <div class="card">
-          <h3>Heuristique gloutonne</h3>
-          <p>
-            À chaque étape, sélection de la ville non visitée la plus proche
-            (<em>nearest neighbour</em>). Complexité
-            <code class="inline-code">O(n²)</code>, résultat sous-optimal.
-          </p>
+
+        <div class="arch-file" onclick="showDetail('tspinstance')">
+          <span class="arch-file-icon">&#128203;</span>
+          <div class="arch-file-name">TSPInstance</div>
+          <div class="arch-file-type">.h / .cpp</div>
         </div>
-        <div class="card">
-          <h3>[Algorithme retenu]</h3>
-          <p>
-            Description de l'approche principale choisie pour le projet
-            (ex : recuit simulé, algorithme génétique, 2-opt…).
-            Complexité à préciser.
-          </p>
+
+        <div class="arch-file" onclick="showDetail('tspparser')">
+          <span class="arch-file-icon">&#128196;</span>
+          <div class="arch-file-name">TSPParser</div>
+          <div class="arch-file-type">.h / .cpp</div>
         </div>
+
+        <div class="arch-file" onclick="showDetail('coorddist')">
+          <span class="arch-file-icon">&#128207;</span>
+          <div class="arch-file-name">CoordDistance<br>Calc</div>
+          <div class="arch-file-type">.h / .cpp</div>
+        </div>
+
+        <div class="arch-file" onclick="showDetail('explicitmatrix')">
+          <span class="arch-file-icon">&#128200;</span>
+          <div class="arch-file-name">ExplicitMatrix<br>Reader</div>
+          <div class="arch-file-type">.h / .cpp</div>
+        </div>
+
+        <div class="arch-file" onclick="showDetail('nn')">
+          <span class="arch-file-icon">&#128270;</span>
+          <div class="arch-file-name">AlgoNearest<br>Neighbor</div>
+          <div class="arch-file-type">.h / .cpp</div>
+        </div>
+
+        <div class="arch-file" onclick="showDetail('twoopt')">
+          <span class="arch-file-icon">&#9881;</span>
+          <div class="arch-file-name">Algo2OPT</div>
+          <div class="arch-file-type">.h / .cpp</div>
+        </div>
+
+        <div class="arch-file" onclick="showDetail('visualizer')">
+          <span class="arch-file-icon">&#128444;</span>
+          <div class="arch-file-name">Visualizer</div>
+          <div class="arch-file-type">.h / .cpp</div>
+        </div>
+
       </div>
+
+      <!-- Panneau de détail -->
+      <div class="arch-detail" id="arch-detail"></div>
     </section>
 
-    <!-- 3. Structures de données -->
+    <!-- ══════════════════════════════════════════════
+         2. RAPPEL DU PROBLÈME
+    ══════════════════════════════════════════════ -->
+    <section class="section section-alt" id="probleme">
+      <h2 class="section-title">2. Rappel du problème</h2>
+      <p>
+        Le <strong>Problème du Voyageur de Commerce</strong> (TSP —
+        <em>Travelling Salesman Problem</em>) consiste à trouver le chemin
+        le plus court permettant de visiter un ensemble de <em>n</em> villes
+        exactement une fois, puis de revenir à la ville de départ.
+      </p>
+      <p>
+        Formellement, soit un graphe complet et pondéré
+        <em>G = (V, E, w)</em> où <em>V</em> est l'ensemble des villes,
+        <em>E</em> les arêtes et <em>w(i,j)</em> la distance entre la ville
+        <em>i</em> et la ville <em>j</em>. On cherche une permutation
+        <em>&sigma;</em> de <em>V</em> minimisant :
+      </p>
+      <pre class="code-block" style="font-size:0.9rem; padding:1rem 1.5rem;">Coût(&sigma;) = w(&sigma;(n), &sigma;(1))  +  &sum; w(&sigma;(i), &sigma;(i+1))  pour i = 1 .. n-1</pre>
+      <p>
+        Le TSP est un problème <strong>NP-difficile</strong> : le nombre de
+        solutions possibles croît en <code class="inline-code">(n-1)! / 2</code>.
+        Pour 48 villes (instance att48), cela représente environ
+        <code class="inline-code">10<sup>59</sup></code> tournées à évaluer
+        par force brute — ce qui est impossible en pratique. On recourt donc
+        à des <strong>heuristiques</strong>.
+      </p>
+      <p>
+        Les fichiers <code class="inline-code">.tsp</code> utilisés sont au
+        format <strong>TSPLIB</strong>, un standard académique qui décrit les
+        instances par un en-tête (nom, dimension, type de distance) suivi des
+        données (coordonnées ou matrice explicite).
+      </p>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         3. STRUCTURES DE DONNÉES
+    ══════════════════════════════════════════════ -->
     <section class="section" id="structures">
       <h2 class="section-title">3. Structures de données</h2>
       <p>
-        Décrire ici les structures utilisées dans le code C++ : matrice d'adjacence,
-        liste d'adjacence, représentation d'un tour, etc.
+        Toutes les informations d'une instance TSP sont regroupées dans une
+        unique structure <code class="inline-code">TSPInstance</code>, définie
+        dans <code class="inline-code">TSPInstance.h</code>.
       </p>
-      <pre class="code-block"><code>// Exemple : représentation d'un graphe par matrice d'adjacence
-#include &lt;vector&gt;
+      <pre class="code-block"><code>// Coordonnées 2D d'un nœud
+struct NodeCoord {
+    double x;
+    double y;
+};
 
-using Matrix = std::vector&lt;std::vector&lt;double&gt;&gt;;
-
-Matrix buildGraph(int n) {
-    // Initialise une matrice n x n
-    return Matrix(n, std::vector&lt;double&gt;(n, 0.0));
-}</code></pre>
-    </section>
-
-    <!-- 4. Implémentation -->
-    <section class="section section-alt" id="implementation">
-      <h2 class="section-title">4. Implémentation principale</h2>
+// Structure principale représentant une instance TSP
+struct TSPInstance {
+    char       name[256];     // Nom de l'instance (ex : "att48")
+    int        n;             // Nombre de villes
+    int        weight_type;   // Type de distance : EUC_2D, ATT ou EXPLICIT
+    int        weight_format; // Format de la matrice (UPPER_ROW, ...)
+    int      **dist;          // Matrice de distances [n][n]
+    NodeCoord *coords;        // Coordonnées des nœuds (nullptr si absentes)
+    bool       has_coords;    // true si les coords sont disponibles
+};</code></pre>
       <p>
-        Cette section présente le cœur de l'algorithme implémenté.
-        Remplacer le bloc ci-dessous par le vrai code du projet.
+        La <strong>matrice de distances</strong> <code class="inline-code">dist[i][j]</code>
+        est une matrice carrée symétrique allouée dynamiquement. Chaque entrée
+        contient la distance entière (arrondie selon la métrique) entre la
+        ville&nbsp;<em>i</em> et la ville&nbsp;<em>j</em>.
+        Sa taille est <code class="inline-code">n × n</code> entiers.
       </p>
-      <pre class="code-block"><code>// [Placeholder] — À remplacer par le code réel du projet
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-#include &lt;algorithm&gt;
-#include &lt;numeric&gt;
-#include &lt;limits&gt;
+      <p>
+        Selon le type de fichier, les distances sont soit lues directement
+        (format <code class="inline-code">EXPLICIT UPPER_ROW</code>), soit
+        calculées depuis les coordonnées selon deux métriques TSPLIB :
+      </p>
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>Métrique</th>
+            <th>Formule</th>
+            <th>Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="inline-code">EUC_2D</code></td>
+            <td><code class="inline-code">round( √(Δx² + Δy²) )</code></td>
+            <td>Distance euclidienne arrondie</td>
+          </tr>
+          <tr>
+            <td><code class="inline-code">ATT</code></td>
+            <td><code class="inline-code">ceil( √((Δx² + Δy²) / 10) )</code></td>
+            <td>Pseudo-euclidienne — instance att48</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-// Calcul du coût total d'un tour donné
-double tourCost(const std::vector&lt;int&gt;&amp; tour, const Matrix&amp; dist) {
-    double cost = 0.0;
-    int n = tour.size();
-    for (int i = 0; i &lt; n; ++i) {
-        cost += dist[tour[i]][tour[(i + 1) % n]];
+    <!-- ══════════════════════════════════════════════
+         4. PIPELINE D'EXÉCUTION
+    ══════════════════════════════════════════════ -->
+    <section class="section section-alt" id="pipeline">
+      <h2 class="section-title">4. Pipeline d'exécution</h2>
+      <p>
+        À chaque fichier <code class="inline-code">.tsp</code> passé en
+        argument, le programme suit les étapes suivantes :
+      </p>
+      <div class="pipeline">
+        <span class="pipe-step">Lecture .tsp</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step">Parsing en-tête</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step">Calcul matrice dist[][]</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step">Nearest Neighbor × n</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step">2-opt</span>
+        <span class="pipe-arrow">→</span>
+        <span class="pipe-step">Visualisation SFML</span>
+      </div>
+      <p>
+        La phase <strong>Nearest Neighbor</strong> est lancée depuis
+        <strong>chaque ville</strong> comme point de départ (soit <em>n</em>
+        exécutions). On ne conserve que le meilleur chemin, qui est ensuite
+        amélioré par 2-opt. Cette approche multi-départ améliore significativement
+        la qualité de la solution initiale avant optimisation locale.
+      </p>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         5. NEAREST NEIGHBOR
+    ══════════════════════════════════════════════ -->
+    <section class="section" id="nn">
+      <h2 class="section-title">5. Algorithme Nearest Neighbor (Plus Proche Voisin)</h2>
+      <p>
+        Le <strong>Nearest Neighbor</strong> est une heuristique gloutonne
+        (ou <em>greedy</em>) : à chaque étape, on choisit localement la
+        meilleure option sans revenir en arrière. C'est l'heuristique de
+        construction utilisée dans ce projet.
+      </p>
+
+      <h3 style="margin: 1.25rem 0 0.75rem;">Principe en 4 étapes</h3>
+      <div class="algo-step">
+        <div class="algo-step-num">1</div>
+        <div class="algo-step-body">
+          <h4>Initialisation</h4>
+          <p>On part d'une ville de départ. On crée un tableau <code class="inline-code">visite[]</code> pour mémoriser les villes déjà parcourues, et un tableau <code class="inline-code">chemin[]</code> de taille <em>n+1</em> pour stocker le tour.</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">2</div>
+        <div class="algo-step-body">
+          <h4>Recherche du plus proche voisin</h4>
+          <p>Depuis la ville courante, on parcourt toutes les villes non encore visitées et on retient celle dont la distance est minimale dans <code class="inline-code">dist[actuel][j]</code>.</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">3</div>
+        <div class="algo-step-body">
+          <h4>Déplacement</h4>
+          <p>On se déplace vers cette ville, on la marque visitée, on l'ajoute au chemin. On répète l'étape 2 jusqu'à avoir visité toutes les villes (<em>n</em> fois).</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">4</div>
+        <div class="algo-step-body">
+          <h4>Fermeture du tour</h4>
+          <p>On ajoute la ville de départ en fin de tableau pour boucler le chemin : <code class="inline-code">chemin[n] = villeDepart</code>.</p>
+        </div>
+      </div>
+
+      <h3 style="margin: 1.25rem 0 0.75rem;">Code — <code class="inline-code">AlgoNearestNeighbor.cpp</code></h3>
+      <pre class="code-block"><code>int* nearestNeighbor(TSPInstance* inst, int villeDepart) {
+
+    int n = inst->n;
+
+    bool* visite = new bool[n];
+    for (int i = 0; i &lt; n; i++) visite[i] = false;
+
+    int* chemin = new int[n + 1];   // taille n+1 : retour au départ inclus
+
+    int actuel = villeDepart;
+    visite[actuel] = true;
+    chemin[0] = actuel;
+
+    for (int etape = 1; etape &lt; n; etape++) {
+
+        int meilleureDist  = -1;
+        int meilleureVille = -1;
+
+        for (int j = 0; j &lt; n; j++) {
+            if (visite[j]) continue;           // ignorer les villes déjà visitées
+
+            int dist = inst->dist[actuel][j];
+
+            if (meilleureDist == -1 || dist &lt; meilleureDist) {
+                meilleureDist  = dist;
+                meilleureVille = j;
+            }
+        }
+
+        actuel = meilleureVille;
+        visite[actuel] = true;
+        chemin[etape]  = actuel;
     }
-    return cost;
-}
 
-// [Nom de l'algorithme principal] — à compléter
-std::vector&lt;int&gt; solveTSP(const Matrix&amp; dist) {
-    int n = dist.size();
-    std::vector&lt;int&gt; tour(n);
-    std::iota(tour.begin(), tour.end(), 0); // 0, 1, 2, ..., n-1
+    chemin[n] = villeDepart;   // retour à la ville de départ
+    delete[] visite;
 
-    // TODO : implémenter la logique de l'algorithme ici
-
-    return tour;
-}
-
-int main() {
-    // TODO : charger les données et appeler solveTSP()
-    return 0;
+    return chemin;  // à libérer avec delete[] dans l'appelant
 }</code></pre>
     </section>
 
-    <!-- 5. Complexité -->
+    <!-- ══════════════════════════════════════════════
+         6. 2-OPT
+    ══════════════════════════════════════════════ -->
+    <section class="section section-alt" id="twoopt">
+      <h2 class="section-title">6. Optimisation locale 2-opt</h2>
+      <p>
+        Le 2-opt est une méthode d'<strong>optimisation locale</strong>
+        qui améliore un chemin existant en cherchant à supprimer les
+        croisements d'arêtes. Il est appliqué <em>après</em> le Nearest
+        Neighbor pour affiner la solution.
+      </p>
+
+      <h3 style="margin: 1.25rem 0 0.75rem;">Principe</h3>
+      <p>
+        Pour chaque paire d'arêtes <code class="inline-code">(A→B)</code> et
+        <code class="inline-code">(C→D)</code> du chemin, on teste si les
+        remplacer par <code class="inline-code">(A→C)</code> et
+        <code class="inline-code">(B→D)</code> (en inversant le segment entre
+        B et C) raccourcit le tour. Si oui, l'inversion est conservée et on
+        recommence depuis le début. On s'arrête quand aucune amélioration
+        n'est plus possible.
+      </p>
+      <p>
+        La condition d'amélioration est simplement :
+      </p>
+      <pre class="code-block" style="padding:0.9rem 1.5rem; font-size:0.88rem;"><code>dist[A][B] + dist[C][D]  &gt;  dist[A][C] + dist[B][D]
+             ↓ si vrai : inverser le segment [B .. C]</code></pre>
+
+      <h3 style="margin: 1.25rem 0 0.75rem;">Code — <code class="inline-code">Algo2OPT.cpp</code></h3>
+      <pre class="code-block"><code>void twoOpt(TSPInstance* inst, int* chemin, int taille) {
+
+    int n = taille - 1;     // nombre de villes (sans le retour)
+    bool amelioration = true;
+
+    while (amelioration) {
+        amelioration = false;
+
+        for (int i = 0; i &lt; n - 1; i++) {
+            for (int j = i + 2; j &lt; n; j++) {
+
+                int a = chemin[i],     b = chemin[i + 1];
+                int c = chemin[j],     d = chemin[j + 1];
+
+                int distActuelle = inst->dist[a][b] + inst->dist[c][d];
+                int distNouvelle = inst->dist[a][c] + inst->dist[b][d];
+
+                if (distNouvelle &lt; distActuelle) {
+                    // Inversion du segment entre i+1 et j
+                    inverserSegment(chemin, i + 1, j);
+                    amelioration = true;
+                }
+            }
+        }
+    }
+}</code></pre>
+      <p>
+        La fonction auxiliaire <code class="inline-code">inverserSegment</code>
+        inverse simplement les indices du tableau entre les positions
+        <code class="inline-code">gauche</code> et <code class="inline-code">droit</code>
+        par des échanges successifs, en <code class="inline-code">O(n)</code>.
+      </p>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         7. COMPLEXITÉ
+    ══════════════════════════════════════════════ -->
     <section class="section" id="complexite">
-      <h2 class="section-title">5. Analyse de la complexité</h2>
+      <h2 class="section-title">7. Analyse de la complexité</h2>
+
       <table class="info-table">
         <thead>
           <tr>
             <th>Algorithme</th>
             <th>Complexité temporelle</th>
             <th>Complexité spatiale</th>
-            <th>Qualité de la solution</th>
+            <th>Qualité</th>
           </tr>
         </thead>
         <tbody>
@@ -170,62 +586,134 @@ int main() {
             <td>Force brute</td>
             <td><code class="inline-code">O(n!)</code></td>
             <td><code class="inline-code">O(n)</code></td>
-            <td>Optimale</td>
+            <td>Optimale — inapplicable dès n &gt; 15</td>
           </tr>
           <tr>
-            <td>Plus proche voisin</td>
+            <td>Nearest Neighbor (1 départ)</td>
             <td><code class="inline-code">O(n²)</code></td>
             <td><code class="inline-code">O(n)</code></td>
-            <td>Approchée</td>
+            <td>Approchée — rapide</td>
           </tr>
           <tr>
-            <td>[Algorithme retenu]</td>
-            <td>[à compléter]</td>
-            <td>[à compléter]</td>
-            <td>[à compléter]</td>
+            <td>Nearest Neighbor (n départs)</td>
+            <td><code class="inline-code">O(n³)</code></td>
+            <td><code class="inline-code">O(n)</code></td>
+            <td>Meilleure solution initiale</td>
+          </tr>
+          <tr>
+            <td>2-opt (par passe)</td>
+            <td><code class="inline-code">O(n²)</code></td>
+            <td><code class="inline-code">O(1)</code></td>
+            <td>Amélioration locale — converge</td>
+          </tr>
+          <tr>
+            <td><strong>Total (n départs + 2-opt)</strong></td>
+            <td><code class="inline-code">O(n³) + O(k·n²)</code></td>
+            <td><code class="inline-code">O(n²)</code> (matrice)</td>
+            <td>Très bonne approximation</td>
           </tr>
         </tbody>
       </table>
+
+      <p style="margin-top:1rem; font-family: var(--font-ui); font-size:0.88rem; color:var(--color-text-muted);">
+        <em>k</em> désigne le nombre de passes 2-opt jusqu'à convergence.
+        La matrice de distances alloue <code class="inline-code">n × n</code> entiers en mémoire,
+        soit pour att48 : 48 × 48 × 4 octets = ~9 Ko — négligeable.
+      </p>
     </section>
 
-    <!-- 6. Résultats -->
+    <!-- ══════════════════════════════════════════════
+         8. RÉSULTATS
+    ══════════════════════════════════════════════ -->
     <section class="section section-alt" id="resultats">
-      <h2 class="section-title">6. Résultats &amp; performances</h2>
+      <h2 class="section-title">8. Résultats — instance att48</h2>
       <p>
-        Présenter ici les benchmarks obtenus (temps d'exécution, qualité de la
-        solution) pour différentes tailles de problèmes.
-        Les tableaux, graphiques et analyses seront ajoutés ici.
+        L'instance <code class="inline-code">att48.tsp</code> est un exemple
+        classique de TSPLIB comportant <strong>48 villes</strong> dont les
+        coordonnées sont des positions d'États américains. La distance utilisée
+        est la métrique <code class="inline-code">ATT</code> (pseudo-euclidienne).
       </p>
+
+      <h3 style="margin: 1.25rem 0 0.75rem;">Sortie console</h3>
+      <pre class="code-block"><code>==========================================
+  Solveur TSP - Nearest Neighbor + 2-opt
+==========================================
+
+Chargement de 'att48.tsp' ...
+  Fichier trouvé dans instances/ : 'instances/att48.tsp'
+
+  Nom       : att48
+  Dimension : 48 villes
+  Type      : ATT
+  Coords    : oui
+
+  Recherche du meilleur chemin (Nearest Neighbor)...
+  Nearest Neighbor : distance = 12012
+  Apres 2-opt      : distance = 11196
+
+  Meilleur chemin trouve :
+  9 -> 23 -> 41 -> 4 -> 47 -> 38 -> 31 -> 20 -> 12 -> 24 -> 13 -> 22
+  -> 10 -> 46 -> 19 -> 42 -> 16 -> 26 -> 18 -> 36 -> 5 -> 29 -> 27
+  -> 35 -> 6 -> 17 -> 43 -> 30 -> 45 -> 32 -> 11 -> 37 -> 0 -> 8
+  -> 39 -> 21 -> 15 -> 2 -> 33 -> 40 -> 28 -> 1 -> 25 -> 3 -> 34 -> 44 -> 9
+
+  Distance finale : 11196
+
+==========================================
+  Bilan : 1 succes, 0 echec(s)
+==========================================</code></pre>
+
+      <h3 style="margin: 1.5rem 0 0.75rem;">Visualisation SFML</h3>
+      <p>
+        La fenêtre graphique est générée par SFML via le module
+        <code class="inline-code">Visualizer.cpp</code>. Les villes sont
+        représentées par des points rouges, les arêtes du tour en bleu,
+        et les numéros d'étape en jaune.
+      </p>
+
+      <div class="result-grid">
+        <div class="result-img-wrap">
+          <img src="resultat_att48_tsp.png" alt="Visualisation du tour att48 — résultat 1" />
+          <div class="result-img-caption">Tour final — Distance : 11196</div>
+        </div>
+        <div class="result-img-wrap">
+          <img src="Résultat2_att48_tsp.png" alt="Visualisation du tour att48 — résultat 2" />
+          <div class="result-img-caption">Vue alternative — instance att48</div>
+        </div>
+      </div>
+
+      <h3 style="margin: 1.5rem 0 0.75rem;">Bilan chiffré</h3>
       <table class="info-table">
         <thead>
           <tr>
-            <th>Nb de villes</th>
-            <th>Temps (ms)</th>
-            <th>Coût obtenu</th>
-            <th>Coût optimal</th>
+            <th>Étape</th>
+            <th>Distance obtenue</th>
+            <th>Gain</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>10</td>
-            <td>[—]</td>
-            <td>[—]</td>
-            <td>[—]</td>
+            <td>Après Nearest Neighbor (meilleur sur 48 départs)</td>
+            <td>12 012</td>
+            <td>—</td>
           </tr>
           <tr>
-            <td>50</td>
-            <td>[—]</td>
-            <td>[—]</td>
-            <td>[—]</td>
+            <td>Après 2-opt</td>
+            <td>11 196</td>
+            <td>− 816 (−6,8 %)</td>
           </tr>
           <tr>
-            <td>100</td>
-            <td>[—]</td>
-            <td>[—]</td>
-            <td>[—]</td>
+            <td>Optimum connu (TSPLIB)</td>
+            <td>10 628</td>
+            <td>Écart : +5,3 %</td>
           </tr>
         </tbody>
       </table>
+      <p style="margin-top:0.9rem; font-family:var(--font-ui); font-size:0.85rem; color:var(--color-text-muted);">
+        La solution obtenue est à environ <strong>5,3 %</strong> au-dessus de
+        l'optimum connu, ce qui est un résultat satisfaisant pour une approche
+        heuristique simple sans exploration exhaustive.
+      </p>
     </section>
 
   </main>
@@ -238,6 +726,93 @@ int main() {
   <script>
     function toggleMenu() {
       document.querySelector('.nav-links').classList.toggle('open');
+    }
+
+    // ── Données des fichiers ──────────────────────────────────────────────────
+    const fileData = {
+      main: {
+        name: 'main.cpp',
+        role: 'Point d\'entrée',
+        desc: `Orchestre l'ensemble du programme. Pour chaque fichier <code class="inline-code">.tsp</code> passé en argument, il résout le chemin du répertoire, charge l'instance via <code class="inline-code">TSPParser</code>, lance le Nearest Neighbor depuis chaque ville de départ, conserve le meilleur tour, applique le 2-opt, affiche les résultats en console et ouvre la fenêtre de visualisation.`,
+        extra: `Aucun algorithme de résolution n'est implémenté ici : <code class="inline-code">main.cpp</code> joue uniquement le rôle de chef d'orchestre.`
+      },
+      tspinstance: {
+        name: 'TSPInstance.h / .cpp',
+        role: 'Structure de données centrale',
+        desc: `Définit la structure <code class="inline-code">TSPInstance</code> qui regroupe toutes les informations d'une instance : nom, nombre de villes, matrice de distances <code class="inline-code">dist[n][n]</code>, coordonnées et type de pondération. Fournit aussi les fonctions d'allocation (<code class="inline-code">tsp_alloc_matrix</code>), de libération (<code class="inline-code">tsp_free</code>) et de validation.`,
+        extra: `La matrice <code class="inline-code">dist</code> est un double pointeur alloué dynamiquement ligne par ligne. Elle est symétrique : <code class="inline-code">dist[i][j] == dist[j][i]</code>.`
+      },
+      tspparser: {
+        name: 'TSPParser.h / .cpp',
+        role: 'Lecture des fichiers .tsp (TSPLIB)',
+        desc: `Lit et analyse un fichier au format TSPLIB. Il parse l'en-tête ligne par ligne (NAME, DIMENSION, EDGE_WEIGHT_TYPE…), puis délègue la lecture des données à <code class="inline-code">CoordDistanceCalc</code> ou <code class="inline-code">ExplicitMatrixReader</code> selon le type de section détectée.`,
+        extra: `La fonction centrale est <code class="inline-code">tsp_load(filepath, inst)</code>. Elle retourne <code class="inline-code">true</code> en cas de succès ou <code class="inline-code">false</code> si le fichier est invalide ou incomplet.`
+      },
+      coorddist: {
+        name: 'CoordDistanceCalc.h / .cpp',
+        role: 'Calcul des distances depuis les coordonnées',
+        desc: `Lit la section <code class="inline-code">NODE_COORD_SECTION</code> du fichier .tsp, stocke les positions (x, y) de chaque ville dans <code class="inline-code">inst->coords</code>, puis calcule la matrice complète de distances selon la métrique indiquée : euclidienne arrondie (<code class="inline-code">EUC_2D</code>) ou pseudo-euclidienne (<code class="inline-code">ATT</code>).`,
+        extra: `La métrique ATT est définie par TSPLIB comme <code class="inline-code">⌈√((Δx²+Δy²)/10)⌉</code>. Elle est utilisée par l'instance att48.`
+      },
+      explicitmatrix: {
+        name: 'ExplicitMatrixReader.h / .cpp',
+        role: 'Lecture de la matrice explicite',
+        desc: `Lit la section <code class="inline-code">EDGE_WEIGHT_SECTION</code> pour les instances dont les distances sont fournies directement (format <code class="inline-code">UPPER_ROW</code>). Reconstitue la matrice symétrique complète par symétrie. Lit également la section optionnelle <code class="inline-code">DISPLAY_DATA_SECTION</code> pour récupérer des coordonnées d'affichage.`,
+        extra: `Le format UPPER_ROW ne stocke que le triangle supérieur de la matrice (n×(n-1)/2 valeurs). Le module recopie chaque valeur symétriquement : <code class="inline-code">dist[i][j] = dist[j][i] = v</code>.`
+      },
+      nn: {
+        name: 'AlgoNearestNeighbor.h / .cpp',
+        role: 'Heuristique gloutonne — construction du tour',
+        desc: `Implémente l'algorithme du Plus Proche Voisin. Depuis une ville de départ donnée, construit un tour en visitant à chaque étape la ville non visitée la plus proche dans la matrice <code class="inline-code">dist</code>. Retourne un tableau <code class="inline-code">int*</code> de taille <code class="inline-code">n+1</code> représentant le tour (le premier et dernier élément sont identiques).`,
+        extra: `Appelé n fois dans <code class="inline-code">main.cpp</code> (une fois par ville de départ). Seul le tour de distance minimale est conservé.`
+      },
+      twoopt: {
+        name: 'Algo2OPT.h / .cpp',
+        role: 'Optimisation locale — amélioration du tour',
+        desc: `Implémente l'algorithme 2-opt d'optimisation locale. Teste toutes les paires d'arêtes du tour et inverse le segment intermédiaire si cela réduit la distance totale. Répète jusqu'à ce qu'aucune amélioration ne soit possible (convergence).`,
+        extra: `Modifie directement le tableau <code class="inline-code">chemin[]</code> passé en paramètre (modification en place). La fonction <code class="inline-code">inverserSegment</code> est une fonction interne non exposée dans le header.`
+      },
+      visualizer: {
+        name: 'Visualizer.h / .cpp',
+        role: 'Affichage graphique du tour (SFML)',
+        desc: `Ouvre une fenêtre graphique via la bibliothèque <strong>SFML</strong> et y dessine le tour TSP : les villes (points rouges), les arêtes (traits bleus), les numéros de ville et les numéros d'étape. La distance finale est affichée en vert en haut à gauche. La fenêtre se ferme avec la croix ou la touche Échap.`,
+        extra: `N'est appelé que si <code class="inline-code">inst->has_coords == true</code>. Utilise les coordonnées normalisées pour s'adapter à la taille de la fenêtre (800×700 px).`
+      }
+    };
+
+    let currentId = null;
+
+    function showDetail(id) {
+      const detail = document.getElementById('arch-detail');
+      const allFiles = document.querySelectorAll('.arch-file');
+
+      // Désactiver tous les fichiers
+      allFiles.forEach(f => f.classList.remove('active'));
+
+      // Si on re-clique sur le même fichier → fermer
+      if (currentId === id) {
+        detail.innerHTML = '';
+        detail.classList.remove('visible');
+        currentId = null;
+        return;
+      }
+
+      // Activer le fichier cliqué
+      const clicked = document.querySelector(`[onclick="showDetail('${id}')"]`);
+      if (clicked) clicked.classList.add('active');
+
+      const d = fileData[id];
+      detail.innerHTML = `
+        <span class="role-tag">${d.role}</span>
+        <h3>${d.name}</h3>
+        <p>${d.desc}</p>
+        ${d.extra ? `<p>${d.extra}</p>` : ''}
+      `;
+      detail.classList.add('visible');
+      currentId = id;
+
+      // Scroll doux vers le panneau
+      setTimeout(() => detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
     }
   </script>
 
